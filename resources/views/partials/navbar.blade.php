@@ -21,6 +21,26 @@
 
             <ul class="navbar-nav">
                 {{-- Entrar / Registar / Sair: entram com o registo e o login (UC04, UC05) --}}
+
+                <li class="nav-item dropdown">
+                    <button class="nav-link dropdown-toggle" type="button"
+                            data-bs-toggle="dropdown" aria-expanded="false" aria-label="{{ __('Idioma') }}">
+                        {{ strtoupper(app()->getLocale()) }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        @foreach (config('app.available_locales') as $codigo => $nome)
+                            <li>
+                                <form method="POST" action="{{ route('locale.update', $codigo) }}">
+                                    @csrf
+                                    <button type="submit" lang="{{ $codigo }}"
+                                            class="dropdown-item {{ app()->getLocale() === $codigo ? 'active' : '' }}">
+                                        {{ $nome }}
+                                    </button>
+                                </form>
+                            </li>
+                        @endforeach
+                    </ul>
+                </li>
             </ul>
         </div>
     </div>
