@@ -52,5 +52,5 @@ db: vista de agenda por médico
 - Uma issue por PR. Se o PR passa de ~400 linhas alteradas, divide-o.
 - Quem revê corre o branch localmente, não aprova só a ler o código.
 - Migrations já integradas no `main` **não se editam**: cria uma migration nova.
-- Textos visíveis ao utilizador vão para os ficheiros `lang/pt` e `lang/en`, nunca escritos diretamente nas vistas.
+- Textos visíveis escrevem-se em português com `__('…')`; a tradução inglesa vai para `lang/en.json`. Nunca texto solto nas vistas.
 - Regras de acesso (perfil, posse dos dados) verificam-se no servidor, nunca só escondendo botões.
