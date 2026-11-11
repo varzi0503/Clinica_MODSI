@@ -10,11 +10,12 @@ enum EstadoConsulta: string
     case Rejeitada = 'rejeitada';
     case Cancelada = 'cancelada';
     case Realizada = 'realizada';
+    case Faltou = 'faltou';
 
     /** Estados em que a consulta ocupa a vaga (tem de bater certo com a coluna gerada vaga_ocupada). */
     public function ocupaVaga(): bool
     {
-        return in_array($this, [self::Pedida, self::Confirmada, self::Realizada], true);
+        return in_array($this, [self::Pedida, self::Confirmada, self::Realizada, self::Faltou], true);
     }
 
     public function label(): string
@@ -26,6 +27,7 @@ enum EstadoConsulta: string
             self::Rejeitada => __('Rejeitada'),
             self::Cancelada => __('Cancelada'),
             self::Realizada => __('Realizada'),
+            self::Faltou => __('Faltou'),
         };
     }
 }

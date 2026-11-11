@@ -3,8 +3,6 @@
     "Abrir menu": "Open menu",
     "As credenciais indicadas não estão corretas.": "These credentials do not match our records.",
     "Bem-vindo à :nome": "Welcome to :nome",
-    "Conta bloqueada por tentativas falhadas. Tente novamente às :hora.": "Account locked after failed attempts. Try again at :hora.",
-    "Entrar": "Log in",
     "Fechar": "Close",
     "Idioma": "Language",
     "Início": "Home",
@@ -13,5 +11,8 @@
     "Projeto académico MODSI, ISEP": "MODSI academic project, ISEP",
     "Sair": "Log out",
     "Sessão iniciada.": "Logged in.",
-    "Sessão terminada.": "Logged out."
+    "Sessão terminada.": "Logged out.",
+    "Faltou": "Missed",
+    "Conta bloqueada por tentativas falhadas. Tente novamente às :hora.": "Account locked after failed attempts. Try again at :hora.",
+    "Entrar": "Log in",
 }
