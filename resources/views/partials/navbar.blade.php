@@ -32,7 +32,13 @@
                                href="{{ route('rececao.consultas.create') }}">{{ __('Marcar consulta') }}</a>
                         </li>
                     @endif
-                    {{-- Menus dos restantes perfis: entram com os UC respetivos --}}
+                    @if (auth()->user()->temPerfil('paciente'))
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('paciente.pedidos.*') ? 'active' : '' }}"
+                               href="{{ route('paciente.pedidos.create') }}">{{ __('Pedir consulta') }}</a>
+                        </li>
+                    @endif
+                    {{-- Menu do profissional: entra com os UC respetivos --}}
                 @endauth
             </ul>
 

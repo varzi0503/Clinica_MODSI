@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegistoController;
 use App\Http\Controllers\DisponibilidadeController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\Paciente\PedidoController;
 use App\Http\Controllers\Rececao\MarcacaoController;
 use App\Http\Controllers\Rececao\PedidoConsultaController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,11 @@ Route::middleware('guest')->group(function () {
 
 // POST (e não GET) porque termina a sessão; o formulário leva token CSRF.
 Route::post('/sair', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+
+Route::middleware(['auth', 'perfil:paciente'])->prefix('paciente')->name('paciente.')->group(function () {
+    Route::get('/consultas/pedir', [PedidoController::class, 'create'])->name('pedidos.create');
+    Route::post('/consultas/pedidos', [PedidoController::class, 'store'])->name('pedidos.store');
+});
 
 Route::middleware(['auth', 'perfil:rececionista'])->prefix('rececao')->name('rececao.')->group(function () {
     Route::get('/pedidos', [PedidoConsultaController::class, 'index'])->name('pedidos.index');
