@@ -53,10 +53,7 @@ class MarcacaoController extends Controller
         // O '|' põe os segundos a zero (sem ele, o PHP preenche-os com a hora atual).
         $inicio = CarbonImmutable::createFromFormat('Y-m-d\TH:i|', $dados['inicio']);
 
-        $livre = $disponibilidade->vagasLivres($profissional, $inicio, $inicio)
-            ->contains(fn (CarbonImmutable $vaga) => $vaga->eq($inicio));
-
-        if (! $livre) {
+        if (! $disponibilidade->estaLivre($profissional, $inicio)) {
             throw ValidationException::withMessages([
                 'inicio' => __('Esta vaga já não está disponível.'),
             ]);

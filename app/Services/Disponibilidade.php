@@ -53,4 +53,11 @@ class Disponibilidade
 
         return $vagas->sort()->values();
     }
+
+    /** A vaga que começa em $inicio está livre para este profissional? */
+    public function estaLivre(Profissional $profissional, CarbonImmutable $inicio): bool
+    {
+        return $this->vagasLivres($profissional, $inicio, $inicio)
+            ->contains(fn (CarbonImmutable $vaga) => $vaga->eq($inicio));
+    }
 }
