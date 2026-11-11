@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\RegistoController;
 use App\Http\Controllers\DisponibilidadeController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Paciente\PedidoController;
+use App\Http\Controllers\Profissional\HorarioController;
 use App\Http\Controllers\Rececao\MarcacaoController;
 use App\Http\Controllers\Rececao\PedidoConsultaController;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +32,12 @@ Route::post('/sair', [LoginController::class, 'destroy'])->middleware('auth')->n
 Route::middleware(['auth', 'perfil:paciente'])->prefix('paciente')->name('paciente.')->group(function () {
     Route::get('/consultas/pedir', [PedidoController::class, 'create'])->name('pedidos.create');
     Route::post('/consultas/pedidos', [PedidoController::class, 'store'])->name('pedidos.store');
+});
+
+Route::middleware(['auth', 'perfil:profissional'])->prefix('profissional')->name('profissional.')->group(function () {
+    Route::get('/horario', [HorarioController::class, 'index'])->name('horario.index');
+    Route::post('/horario', [HorarioController::class, 'store'])->name('horario.store');
+    Route::delete('/horario/{horario}', [HorarioController::class, 'destroy'])->name('horario.destroy');
 });
 
 Route::middleware(['auth', 'perfil:rececionista'])->prefix('rececao')->name('rececao.')->group(function () {
