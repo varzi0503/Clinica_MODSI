@@ -15,6 +15,10 @@
                        @if (request()->routeIs('home')) aria-current="page" @endif
                        href="{{ route('home') }}">{{ __('Início') }}</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('disponibilidade.*') ? 'active' : '' }}"
+                       href="{{ route('disponibilidade.index') }}">{{ __('Disponibilidade') }}</a>
+                </li>
                 {{-- Especialidades e Médicos: entram com as páginas públicas (UC01–UC03) --}}
 
                 @auth

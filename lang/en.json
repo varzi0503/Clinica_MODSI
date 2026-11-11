@@ -1,5 +1,6 @@
 {
     "A conta está desativada. Contacte a receção.": "This account is disabled. Contact the front desk.",
+    "A partir de": "From",
     "Abrir menu": "Open menu",
     "As credenciais indicadas não estão corretas.": "These credentials do not match our records.",
     "Ações": "Actions",
@@ -11,9 +12,11 @@
     "Consulta": "Appointment",
     "Consulta confirmada.": "Appointment confirmed.",
     "Conta bloqueada por tentativas falhadas. Tente novamente às :hora.": "Account locked after failed attempts. Try again at :hora.",
+    "Disponibilidade": "Availability",
     "Em espera": "Waiting",
     "Enfermeiro": "Nurse",
     "Entrar": "Log in",
+    "Escolha uma especialidade": "Choose a specialty",
     "Especialidade": "Specialty",
     "Este pedido já não está pendente.": "This request is no longer pending.",
     "Faltou": "Missed",
@@ -39,6 +42,7 @@
     "Rejeitada": "Rejected",
     "Rejeitar": "Reject",
     "Sair": "Log out",
+    "Sem vagas livres neste período.": "No free slots in this period.",
     "Sessão iniciada.": "Logged in.",
     "Sessão terminada.": "Logged out."
 }
