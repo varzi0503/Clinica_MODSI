@@ -24,8 +24,12 @@
                 @auth
                     @if (auth()->user()->temPerfil('rececionista'))
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('rececao.*') ? 'active' : '' }}"
+                            <a class="nav-link {{ request()->routeIs('rececao.pedidos.*') ? 'active' : '' }}"
                                href="{{ route('rececao.pedidos.index') }}">{{ __('Pedidos') }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('rececao.consultas.*') ? 'active' : '' }}"
+                               href="{{ route('rececao.consultas.create') }}">{{ __('Marcar consulta') }}</a>
                         </li>
                     @endif
                     {{-- Menus dos restantes perfis: entram com os UC respetivos --}}
