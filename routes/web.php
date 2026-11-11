@@ -7,6 +7,7 @@ use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Paciente\PedidoController;
 use App\Http\Controllers\Profissional\AgendaController;
 use App\Http\Controllers\Profissional\HorarioController;
+use App\Http\Controllers\Profissional\RegistoConsultaController;
 use App\Http\Controllers\Rececao\MarcacaoController;
 use App\Http\Controllers\Rececao\PedidoConsultaController;
 use Illuminate\Support\Facades\Route;
@@ -37,6 +38,8 @@ Route::middleware(['auth', 'perfil:paciente'])->prefix('paciente')->name('pacien
 
 Route::middleware(['auth', 'perfil:profissional'])->prefix('profissional')->name('profissional.')->group(function () {
     Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
+    Route::post('/consultas/{consulta}/realizada', [RegistoConsultaController::class, 'realizada'])->name('consultas.realizada');
+    Route::post('/consultas/{consulta}/faltou', [RegistoConsultaController::class, 'faltou'])->name('consultas.faltou');
     Route::get('/horario', [HorarioController::class, 'index'])->name('horario.index');
     Route::post('/horario', [HorarioController::class, 'store'])->name('horario.store');
     Route::delete('/horario/{horario}', [HorarioController::class, 'destroy'])->name('horario.destroy');

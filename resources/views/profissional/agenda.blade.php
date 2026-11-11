@@ -67,7 +67,21 @@
                                     <div class="small text-muted">{{ $consulta->motivo_consulta }}</div>
                                 @endif
                             </div>
-                            <span class="badge {{ $cores[$consulta->estado->value] ?? 'text-bg-light' }}">{{ $consulta->estado->label() }}</span>
+                            <div class="d-flex flex-column align-items-end gap-1">
+                                <span class="badge {{ $cores[$consulta->estado->value] ?? 'text-bg-light' }}">{{ $consulta->estado->label() }}</span>
+                                @if ($consulta->estado === \App\Enums\EstadoConsulta::Confirmada && ! $consulta->inicio->isFuture())
+                                    <div class="d-flex gap-1">
+                                        <form method="POST" action="{{ route('profissional.consultas.realizada', $consulta) }}">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-outline-success">{{ __('Realizada') }}</button>
+                                        </form>
+                                        <form method="POST" action="{{ route('profissional.consultas.faltou', $consulta) }}">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary">{{ __('Faltou') }}</button>
+                                        </form>
+                                    </div>
+                                @endif
+                            </div>
                         </li>
                     @endforeach
                 </ul>
