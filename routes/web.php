@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\UtilizadorController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegistoController;
 use App\Http\Controllers\DisponibilidadeController;
@@ -30,6 +31,15 @@ Route::middleware('guest')->group(function () {
 
 // POST (e não GET) porque termina a sessão; o formulário leva token CSRF.
 Route::post('/sair', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+
+Route::middleware(['auth', 'perfil:administrador'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/utilizadores', [UtilizadorController::class, 'index'])->name('utilizadores.index');
+    Route::get('/utilizadores/novo', [UtilizadorController::class, 'create'])->name('utilizadores.create');
+    Route::post('/utilizadores', [UtilizadorController::class, 'store'])->name('utilizadores.store');
+    Route::patch('/utilizadores/{user}/perfil', [UtilizadorController::class, 'atualizarPerfil'])->name('utilizadores.perfil');
+    Route::patch('/utilizadores/{user}/ativar', [UtilizadorController::class, 'ativar'])->name('utilizadores.ativar');
+    Route::patch('/utilizadores/{user}/desativar', [UtilizadorController::class, 'desativar'])->name('utilizadores.desativar');
+});
 
 Route::middleware(['auth', 'perfil:paciente'])->prefix('paciente')->name('paciente.')->group(function () {
     Route::get('/consultas/pedir', [PedidoController::class, 'create'])->name('pedidos.create');
