@@ -5,9 +5,10 @@
 @section('content')
     <h1 class="h3 mb-4">{{ __('Pedidos de consulta') }}</h1>
 
-    @if ($pedidos->isEmpty())
-        <p class="text-muted">{{ __('Não há pedidos pendentes.') }}</p>
-    @else
+    <div data-pagina="rececao-pedidos" data-texto-erro="{{ __('Ocorreu um erro. Recarrega a página.') }}">
+    <p class="text-muted {{ $pedidos->isEmpty() ? '' : 'd-none' }}" data-vazio>{{ __('Não há pedidos pendentes.') }}</p>
+
+    @if ($pedidos->isNotEmpty())
         <div class="table-responsive">
             <table class="table align-middle">
                 <thead>
@@ -23,7 +24,7 @@
                 </thead>
                 <tbody>
                     @foreach ($pedidos as $pedido)
-                        <tr>
+                        <tr data-pedido="{{ $pedido->id }}">
                             <td>{{ $pedido->data_pedido->format('d/m/Y H:i') }}</td>
                             <td>{{ $pedido->paciente->nome }}</td>
                             <td>{{ $pedido->profissional->user->name }} <small class="text-muted">({{ $pedido->profissional->tipo->label() }})</small></td>
@@ -31,7 +32,7 @@
                             <td>{{ $pedido->inicio->format('d/m/Y H:i') }}</td>
                             <td>{{ $pedido->motivo_consulta }}</td>
                             <td class="text-end">
-                                <form method="POST" action="{{ route('rececao.pedidos.confirmar', $pedido) }}" class="d-inline">
+                                <form method="POST" action="{{ route('rececao.pedidos.confirmar', $pedido) }}" class="d-inline" data-ajax="pedido">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-success">{{ __('Confirmar') }}</button>
                                 </form>
@@ -41,9 +42,9 @@
                                 </button>
                             </td>
                         </tr>
-                        <tr class="collapse" id="rejeitar-{{ $pedido->id }}">
+                        <tr class="collapse" id="rejeitar-{{ $pedido->id }}" data-pedido="{{ $pedido->id }}">
                             <td colspan="7">
-                                <form method="POST" action="{{ route('rececao.pedidos.rejeitar', $pedido) }}" class="d-flex gap-2">
+                                <form method="POST" action="{{ route('rececao.pedidos.rejeitar', $pedido) }}" class="d-flex gap-2" data-ajax="pedido">
                                     @csrf
                                     <input type="text" name="motivo" class="form-control form-control-sm @error('motivo') is-invalid @enderror"
                                            placeholder="{{ __('Motivo da rejeição') }}" required maxlength="255">
@@ -59,4 +60,5 @@
             </table>
         </div>
     @endif
+    </div>
 @endsection
