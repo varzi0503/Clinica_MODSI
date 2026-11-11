@@ -23,9 +23,22 @@ A partir de 3 de novembro de 2026, as decisões técnicas são tomadas pelo Diog
 | D12 | Bloqueio de login guardado na base de dados | Segurança |
 | D13 | Profissionais com várias especialidades | Modelo de dados |
 | D14 | A consulta guarda o profissional e a hora de início | Modelo de dados |
-| D15 | Restrição anti-duplicação com coluna gerada | Modelo de dados |
+| D15 | Restrição anti-duplicação com coluna gerada (substituída por D20) | Modelo de dados |
 | D16 | Horário de atendimento semanal que se repete | Modelo de dados |
-| D17 | Fluxo de trabalho no GitHub | Processo |
+| D17 | Fluxo de trabalho no GitHub (substituída por D29) | Processo |
+| D18 | Nomes no código seguem as convenções do Laravel | Modelo de dados |
+| D19 | Estados da consulta e matriz de transições | Âmbito |
+| D20 | Restrição anti-duplicação revista (substitui D15) | Modelo de dados |
+| D21 | Lista de espera como estado da consulta | Modelo de dados |
+| D22 | Nº de utente e cédula como identificadores únicos | Modelo de dados |
+| D23 | Histórico de estados escrito na mesma transação que a consulta | Modelo de dados |
+| D24 | Marcação pela receção nasce confirmada; pedido do paciente fica pendente | Âmbito |
+| D25 | Registo de consulta realizada ou falta | Âmbito |
+| D26 | Responsabilidades do administrador e da receção | Âmbito |
+| D27 | Disponibilidade pública, por especialidade | Interface |
+| D28 | Convenção das respostas AJAX | Interface |
+| D29 | Fluxo de trabalho revisto (substitui D17) | Processo |
+| D30 | Traduções: fallback em inglês e sem `trans_choice` | Interface |
 
 ---
 
@@ -200,6 +213,8 @@ A partir de 3 de novembro de 2026, as decisões técnicas são tomadas pelo Diog
 
 ## D15 — Restrição anti-duplicação com coluna gerada
 
+> **Substituída por D20** (11 nov. 2026). Mantida como registo histórico.
+
 **Decisão:**
 ```sql
 vaga_ocupada TINYINT GENERATED ALWAYS AS (IF(estado <> 'Cancelada', 1, NULL)) VIRTUAL,
@@ -232,6 +247,8 @@ UNIQUE (id_profissional, inicio, vaga_ocupada)
 
 ## D17 — Fluxo de trabalho no GitHub
 
+> **Substituída por D29** (11 nov. 2026). Mantida como registo histórico.
+
 **Decisão:**
 - O `main` está protegido. Todo o código entra por pull request com review de outro elemento.
 - Um branch por issue: `feat/`, `fix/`, `docs/` ou `test/`, seguido do número da issue e de uma descrição.
@@ -239,3 +256,178 @@ UNIQUE (id_profissional, inicio, vaga_ocupada)
 - Antes de abrir um PR, o branch é atualizado com o `main` e todos os testes passam.
 
 **Porquê:** é a prova do desenvolvimento colaborativo pedida no enunciado e evita que alterações sem relação se misturem.
+
+
+---
+
+## D18 — Nomes no código seguem as convenções do Laravel
+
+**Decisão:** no código, as tabelas e colunas seguem as convenções do Laravel: tabelas no plural, chave `id`, chaves estrangeiras `paciente_id`, e a tabela de contas é a `users` (com `name` e `password`). O modelo ER do relatório mantém os nomes em português, com uma nota de mapeamento (por exemplo, `UTILIZADOR.id_utilizador` corresponde a `users.id`).
+
+**Porquê:** o Laravel deduz tabelas, chaves e relações a partir destes nomes. Contrariá-los obrigava a configurar `$table`, `$primaryKey` e as chaves estrangeiras à mão em cada modelo e em cada relação, com mais código e mais pontos de erro.
+
+**Consequência:** `Perfil` e `Profissional` indicam a tabela explicitamente (`#[Table]`), porque o Laravel pluraliza em inglês (`perfils`, `profissionals`).
+
+---
+
+## D19 — Estados da consulta e matriz de transições
+
+**Decisão:**
+- Estados: `em_espera`, `pedida`, `confirmada`, `rejeitada`, `cancelada`, `realizada` e `faltou`.
+- Transições permitidas:
+  - `em_espera` → `pedida` ou `cancelada`
+  - `pedida` → `confirmada`, `rejeitada` ou `cancelada`
+  - `confirmada` → `realizada`, `faltou` ou `cancelada`
+  - `rejeitada`, `cancelada`, `realizada` e `faltou` são terminais.
+- Uma consulta só nasce `pedida` ou `em_espera`.
+- A matriz está em `EstadoConsulta::transicoesPermitidas()`. Qualquer mudança de estado passa por `Consulta::mudarEstado()`, que recusa transições fora da matriz com `TransicaoEstadoInvalida`.
+
+**Porquê:**
+- **Rejeitar não é cancelar:** o ator é diferente (a receção recusa um pedido; o paciente ou o profissional desistem de uma consulta) e o histórico deve distinguir os dois casos.
+- **Uma falta não é uma consulta cancelada:** o UC de registo de faltas e as estatísticas precisam de a contar à parte.
+- **Uma regra num só sítio:** os casos de uso não podem, por engano, pôr uma consulta realizada outra vez como pedida.
+
+**Consequência:** a matriz não sabe quem faz a transição. Quem pode confirmar, cancelar ou registar é uma regra de autorização de cada caso de uso.
+
+---
+
+## D20 — Restrição anti-duplicação revista (substitui D15)
+
+**Decisão:**
+```sql
+vaga_ocupada TINYINT GENERATED ALWAYS AS
+  (CASE WHEN estado IN ('pedida', 'confirmada', 'realizada', 'faltou') THEN 1 ELSE NULL END) STORED,
+UNIQUE (profissional_id, inicio, vaga_ocupada),
+UNIQUE (paciente_id, inicio, vaga_ocupada)
+```
+Acresce uma chave estrangeira composta `(profissional_id, especialidade_id)` para `especialidade_profissional`, e restrições CHECK em MySQL que obrigam `inicio` a ser uma hora certa ou meia.
+
+**Porquê:**
+- Com os estados da D19, "não cancelada" deixou de ser o critério certo. Pedidos em espera e rejeitados também não podem ocupar a vaga, e uma falta continua a ocupá-la.
+- A segunda restrição impede o mesmo paciente de ter duas consultas à mesma hora com profissionais diferentes.
+- A chave composta garante na base de dados que a especialidade da consulta é uma das que o profissional exerce. A D14 deixava essa verificação só na aplicação.
+- `STORED` em vez de `VIRTUAL`: o índice único fica sobre um valor guardado em disco, e o SQLite usado nos testes também o suporta.
+
+**Consequência:** `EstadoConsulta::ocupaVaga()` tem de coincidir com a fórmula da coluna. Um teste compara os dois nos sete estados.
+
+---
+
+## D21 — Lista de espera como estado da consulta
+
+**Decisão:** um pedido para uma vaga já ocupada fica `em_espera`. A ordem da lista é a de `data_pedido`. Quando a vaga se liberta, o sistema promove o primeiro da lista para `pedida`, e o histórico regista a mudança sem utilizador (`user_id` nulo).
+
+**Porquê:** o pedido em espera tem os mesmos dados que um pedido normal (paciente, profissional, especialidade, vaga). Uma tabela própria duplicava estes dados e obrigava a mover registos entre tabelas na promoção.
+
+**Alternativa rejeitada:** uma tabela `LISTA_ESPERA` separada.
+
+**Estado:** o estado `em_espera` e a ordenação já existem na base de dados. O pedido de uma vaga ocupada e a promoção automática ficam para a issue #75.
+
+---
+
+## D22 — Nº de utente e cédula como identificadores únicos
+
+**Decisão:**
+- `pacientes.num_utente` é obrigatório e único, com 9 dígitos.
+- A cédula profissional é única por tipo: `UNIQUE (tipo, num_cedula)`.
+- O tipo de profissional (médico ou enfermeiro) está só em `profissionais.tipo`. O perfil é sempre `profissional`.
+
+**Porquê:**
+- Sem um identificador único, a receção não consegue associar uma conta à ficha certa (D11) nem evitar fichas duplicadas da mesma pessoa.
+- As Ordens dos Médicos e dos Enfermeiros numeram de forma independente, por isso a mesma cédula pode existir nas duas.
+- O tipo guardado em três sítios (tipo, especialidade "Enfermagem" e perfil) podia ficar inconsistente.
+
+**Limitação conhecida:** um paciente sem número do SNS (por exemplo, um estrangeiro) não pode ser registado.
+
+---
+
+## D23 — Histórico de estados escrito na mesma transação que a consulta
+
+**Decisão:** `consultas.estado` e `consultas.data_estado` repetem o último registo de `historico_estados`. Ambos são escritos na mesma transação, por `Consulta::registarPedido()` e `Consulta::mudarEstado()`. A consulta e o histórico usam datas próprias (`data_pedido`, `data_estado`, `data_hora`) em vez de `created_at`/`updated_at`.
+
+**Porquê:** as listas e a agenda precisam do estado atual sem ler o histórico inteiro. A transação garante que as duas cópias nunca ficam diferentes.
+
+---
+
+## D24 — Marcação pela receção nasce confirmada; pedido do paciente fica pendente
+
+**Decisão:**
+- Quando é a receção a marcar, a consulta nasce `pedida` e passa logo a `confirmada` na mesma transação. O histórico regista os dois passos com a rececionista como autora.
+- Quando é o paciente a pedir, a consulta fica `pedida` até a receção a confirmar ou rejeitar.
+- A rejeição exige motivo, que fica no histórico.
+- Em ambos os casos o servidor volta a confirmar que a vaga está livre (`Disponibilidade::estaLivre()`). A base de dados (D20) trava os pedidos simultâneos, e o utilizador recebe uma mensagem de erro em vez de um erro 500.
+
+**Porquê:** não faz sentido a receção aprovar o próprio pedido. Passar por `pedida` mantém a matriz da D19 sem exceções.
+
+---
+
+## D25 — Registo de consulta realizada ou falta
+
+**Decisão:** só o profissional da consulta a regista como `realizada` ou `faltou`, só depois da hora de início e só se estiver `confirmada`. Uma vez registada, não se altera.
+
+**Porquê:** registar antes da hora não faz sentido. Permitir alterações tornava o histórico e as estatísticas pouco fiáveis.
+
+**Limitação conhecida:** não há forma de corrigir um registo feito por engano. Se for preciso, define-se quem o pode fazer (por exemplo, a receção, com motivo).
+
+---
+
+## D26 — Responsabilidades do administrador e da receção
+
+**Decisão** (indicação do professor):
+- **Administrador:** gere as contas, ou seja, cria, ativa e desativa contas e atribui-lhes um dos perfis existentes.
+- **Receção:** cria profissionais (conta e ficha de uma vez), gere especialidades e vê estatísticas, além do que já fazia com pacientes e consultas.
+
+Para isso:
+- O administrador só cria contas e muda perfis entre `administrador` e `rececionista`.
+- Contas com ficha de paciente ou de profissional não mudam de perfil. Só se ativam e desativam.
+- O administrador não se desativa nem muda o próprio perfil.
+- Reativar uma conta limpa o bloqueio por tentativas falhadas (D12).
+
+**Porquê:**
+- "Atribuir perfis" não inclui criar perfis novos. Sem tabela de permissões (D08), um perfil novo não teria acesso a nada.
+- Uma conta de profissional ou de paciente criada sem ficha entraria e ficaria sem funcionalidades.
+- Mudar o perfil de quem tem ficha deixava a ficha órfã (por exemplo, consultas de um médico que deixa de ter agenda).
+- A clínica nunca pode ficar sem nenhum administrador.
+
+**Consequência:** o UC de atribuição de perfis é descrito no relatório como "atribuir um perfil existente".
+
+---
+
+## D27 — Disponibilidade pública, por especialidade
+
+**Decisão:** a página de disponibilidade não exige conta e filtra por especialidade e data. O endpoint JSON devolve só as horas de início das vagas livres (sem dados de pacientes), num horizonte de 14 dias por omissão e 31 no máximo, com limite de 60 pedidos por minuto por IP.
+
+**Porquê:** o visitante é ator do caso de uso, e as vagas livres não são dados pessoais.
+
+---
+
+## D28 — Convenção das respostas AJAX
+
+**Decisão:** os pedidos AJAX usam um helper comum (`clinica.pedirJson` em `resources/js/ajax.js`), que envia o token CSRF e `Accept: application/json` e trata a sessão expirada e as falhas de rede. As respostas seguem uma convenção:
+- 2xx com `{message}`
+- 422 para erros de validação
+- 409 para conflitos de estado (por exemplo, um pedido já tratado por outra rececionista)
+- 403 para falta de acesso
+
+Os formulários continuam a funcionar sem JavaScript.
+
+**Porquê:** com uma convenção única, cada caso de uso novo com AJAX reaproveita o helper em vez de repetir o tratamento de erros.
+
+---
+
+## D29 — Fluxo de trabalho revisto (substitui D17)
+
+**Decisão:**
+- Toda a alteração entra no `main` por pull request. O GitHub recusa pushes diretos.
+- O merge não exige aprovação: o Diogo implementa o código e faz o merge.
+- O Timóteo e o Filipe testam cada PR de funcionalidade **no `main`, depois do merge**, e deixam um comentário no PR com o que testaram. Os erros encontrados são abertos como issues `fix`.
+- Branches, commits e testes antes do PR mantêm-se como na D17. O processo está descrito no `CONTRIBUTING.md` da raiz.
+
+**Porquê:** desde 9 de novembro o código é escrito por um só elemento, para avançar mais depressa e sem dependências entre elementos. Exigir uma aprovação antes do merge bloqueava cada PR à espera de outro elemento. Os testes depois do merge mantêm o controlo de qualidade e deixam no repositório o registo da participação de cada um.
+
+---
+
+## D30 — Traduções: fallback em inglês e sem `trans_choice`
+
+**Decisão:** o idioma de fallback é `en`. Os textos escrevem-se em português com `__()` e a tradução inglesa vai para `lang/en.json`, por ordem alfabética. Não se usa `trans_choice()`; para singular e plural usam-se duas mensagens.
+
+**Porquê:** quando a chave não está no `pt.json`, o `trans_choice()` escolhe o idioma de fallback e mostrava a mensagem em inglês a quem tem a interface em português. O `__()` não tem este comportamento.
