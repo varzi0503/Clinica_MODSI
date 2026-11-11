@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DisponibilidadeController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\Rececao\MarcacaoController;
 use App\Http\Controllers\Rececao\PedidoConsultaController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,8 @@ Route::middleware(['auth', 'perfil:rececionista'])->prefix('rececao')->name('rec
     Route::get('/pedidos', [PedidoConsultaController::class, 'index'])->name('pedidos.index');
     Route::post('/pedidos/{consulta}/confirmar', [PedidoConsultaController::class, 'confirmar'])->name('pedidos.confirmar');
     Route::post('/pedidos/{consulta}/rejeitar', [PedidoConsultaController::class, 'rejeitar'])->name('pedidos.rejeitar');
+    Route::get('/consultas/marcar', [MarcacaoController::class, 'create'])->name('consultas.create');
+    Route::post('/consultas', [MarcacaoController::class, 'store'])->name('consultas.store');
 });
 
 // POST (e não GET) porque altera o estado da sessão; o formulário leva token CSRF.
