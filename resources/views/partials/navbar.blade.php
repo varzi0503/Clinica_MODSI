@@ -16,7 +16,16 @@
                        href="{{ route('home') }}">{{ __('Início') }}</a>
                 </li>
                 {{-- Especialidades e Médicos: entram com as páginas públicas (UC01–UC03) --}}
-                {{-- Menus por perfil: entram com o controlo de perfis --}}
+
+                @auth
+                    @if (auth()->user()->temPerfil('rececionista'))
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('rececao.*') ? 'active' : '' }}"
+                               href="{{ route('rececao.pedidos.index') }}">{{ __('Pedidos') }}</a>
+                        </li>
+                    @endif
+                    {{-- Menus dos restantes perfis: entram com os UC respetivos --}}
+                @endauth
             </ul>
 
             <ul class="navbar-nav">
