@@ -22,6 +22,17 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * Defaults em memória iguais aos da base de dados, para uma instância
+     * acabada de criar não parecer desativada antes de ser relida.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'ativo' => true,
+        'tentativas_falhadas' => 0,
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
