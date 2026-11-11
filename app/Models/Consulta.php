@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\EstadoConsulta;
+use App\Exceptions\TransicaoEstadoInvalida;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
@@ -67,6 +68,10 @@ class Consulta extends Model
      */
     public static function registarPedido(array $dados, EstadoConsulta $estado, ?User $por): self
     {
+        if (! in_array($estado, [EstadoConsulta::Pedida, EstadoConsulta::EmEspera], true)) {
+            throw new TransicaoEstadoInvalida($estado, $estado);
+        }
+
         return DB::transaction(function () use ($dados, $estado, $por) {
             $consulta = new self($dados);
             $consulta->estado = $estado;
@@ -83,10 +88,15 @@ class Consulta extends Model
      * Muda o estado e regista-o no histórico na mesma transação, para que consultas.estado
      * nunca fique diferente do último registo do histórico.
      * $por é nulo quando a mudança é feita pelo sistema (ex.: promoção da lista de espera).
-     * Não valida se a transição é permitida: isso fica para cada caso de uso.
+     *
+     * @throws TransicaoEstadoInvalida se a transição não for permitida (issue #61)
      */
     public function mudarEstado(EstadoConsulta $novo, ?User $por, ?string $motivo = null): void
     {
+        if (! $this->estado->podeTransitarPara($novo)) {
+            throw new TransicaoEstadoInvalida($this->estado, $novo);
+        }
+
         DB::transaction(function () use ($novo, $por, $motivo) {
             $this->estado = $novo;
             $this->data_estado = now();
