@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegistoController;
 use App\Http\Controllers\DisponibilidadeController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Rececao\MarcacaoController;
@@ -19,6 +20,8 @@ Route::middleware('guest')->group(function () {
     Route::get('/entrar', [LoginController::class, 'create'])->name('login');
     // throttle por IP; o bloqueio por conta é feito no controlador.
     Route::post('/entrar', [LoginController::class, 'store'])->middleware('throttle:10,1')->name('login.store');
+    Route::get('/registar', [RegistoController::class, 'create'])->name('registo');
+    Route::post('/registar', [RegistoController::class, 'store'])->middleware('throttle:5,1')->name('registo.store');
 });
 
 // POST (e não GET) porque termina a sessão; o formulário leva token CSRF.
