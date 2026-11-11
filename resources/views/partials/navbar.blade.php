@@ -42,7 +42,10 @@
                         <a class="nav-link {{ request()->routeIs('login') ? 'active' : '' }}"
                            href="{{ route('login') }}">{{ __('Entrar') }}</a>
                     </li>
-                    {{-- Registar: entra com o registo de pacientes (UC04) --}}
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('registo') ? 'active' : '' }}"
+                           href="{{ route('registo') }}">{{ __('Criar conta') }}</a>
+                    </li>
                 @endguest
 
                 @auth

@@ -159,6 +159,11 @@ return [
     'url'                    => 'O formato do URL indicado para o campo :attribute é inválido.',
     'uuid'                   => ':Attribute tem de ser um UUID válido.',
     'attributes'             => [
+        // Campos próprios da aplicação.
+        'motivo'                   => 'motivo',
+        'motivo_consulta'          => 'motivo da consulta',
+        'num_utente'               => 'nº de utente',
+        'telefone'                 => 'telefone',
         'address'                  => 'morada',
         'affiliate_url'            => 'URL de afiliado',
         'age'                      => 'idade',
@@ -228,7 +233,7 @@ return [
         'name'                     => 'nome',
         'national_code'            => 'código nacional',
         'number'                   => 'número',
-        'password'                 => 'senha',
+        'password'                 => 'palavra-passe',
         'password_confirmation'    => 'confirmação da senha',
         'phone'                    => 'telefone',
         'photo'                    => 'foto',

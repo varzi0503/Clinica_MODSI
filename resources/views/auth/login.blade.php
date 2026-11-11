@@ -31,6 +31,10 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100">{{ __('Entrar') }}</button>
+
+                <p class="text-center mt-3 mb-0 small">
+                    {{ __('Ainda não tem conta?') }} <a href="{{ route('registo') }}">{{ __('Criar conta') }}</a>
+                </p>
             </form>
         </div>
     </div>
