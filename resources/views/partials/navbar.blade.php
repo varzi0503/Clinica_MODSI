@@ -38,7 +38,12 @@
                                href="{{ route('paciente.pedidos.create') }}">{{ __('Pedir consulta') }}</a>
                         </li>
                     @endif
-                    {{-- Menu do profissional: entra com os UC respetivos --}}
+                    @if (auth()->user()->temPerfil('profissional'))
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('profissional.horario.*') ? 'active' : '' }}"
+                               href="{{ route('profissional.horario.index') }}">{{ __('O meu horário') }}</a>
+                        </li>
+                    @endif
                 @endauth
             </ul>
 
