@@ -17,6 +17,23 @@ class Perfil extends Model
     /** @use HasFactory<PerfilFactory> */
     use HasFactory;
 
+    public const ADMINISTRADOR = 'administrador';
+
+    public const RECECIONISTA = 'rececionista';
+
+    public const PROFISSIONAL = 'profissional';
+
+    public const PACIENTE = 'paciente';
+
+    /** Os perfis que existem: o acesso nas rotas está ligado a estes nomes. */
+    public const NOMES = [self::ADMINISTRADOR, self::RECECIONISTA, self::PROFISSIONAL, self::PACIENTE];
+
+    /**
+     * Perfis que o administrador atribui. Profissionais são criados pela receção
+     * com a ficha (UC22); pacientes pelo registo ou pela receção.
+     */
+    public const ATRIBUIVEIS_PELO_ADMIN = [self::ADMINISTRADOR, self::RECECIONISTA];
+
     /** @return HasMany<User, $this> */
     public function users(): HasMany
     {

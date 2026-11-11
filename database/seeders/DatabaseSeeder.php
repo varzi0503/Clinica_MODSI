@@ -16,10 +16,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Os três perfis fixos da aplicação. Os dados de demonstração
-        // (profissionais, horários, pacientes, consultas) ficam em seeders próprios.
-        $perfis = collect(['paciente', 'rececionista', 'profissional'])
+        // Os perfis fixos da aplicação: o acesso está ligado ao nome (sem tabela de permissões).
+        // Os dados de demonstração (profissionais, horários, pacientes, consultas) ficam em seeders próprios.
+        $perfis = collect(Perfil::NOMES)
             ->mapWithKeys(fn (string $nome) => [$nome => Perfil::firstOrCreate(['nome' => $nome])]);
+
+        User::factory()->create([
+            'perfil_id' => $perfis['administrador']->id,
+            'name' => 'Administrador',
+            'email' => 'admin@example.com',
+        ]);
 
         User::factory()->create([
             'perfil_id' => $perfis['rececionista']->id,

@@ -22,6 +22,12 @@
                 {{-- Especialidades e Médicos: entram com as páginas públicas (UC01–UC03) --}}
 
                 @auth
+                    @if (auth()->user()->temPerfil('administrador'))
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('admin.utilizadores.*') ? 'active' : '' }}"
+                               href="{{ route('admin.utilizadores.index') }}">{{ __('Utilizadores') }}</a>
+                        </li>
+                    @endif
                     @if (auth()->user()->temPerfil('rececionista'))
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('rececao.pedidos.*') ? 'active' : '' }}"
