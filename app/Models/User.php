@@ -22,6 +22,17 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     /**
+     * Defaults em memória iguais aos da base de dados, para uma instância
+     * acabada de criar não parecer desativada antes de ser relida.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'ativo' => true,
+        'tentativas_falhadas' => 0,
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -58,5 +69,32 @@ class User extends Authenticatable
     public function temPerfil(string ...$nomes): bool
     {
         return in_array($this->perfil?->nome, $nomes, true);
+    }
+
+    public const MAX_TENTATIVAS = 5;
+
+    public const MINUTOS_BLOQUEIO = 15;
+
+    public function estaBloqueado(): bool
+    {
+        return $this->bloqueado_ate !== null && $this->bloqueado_ate->isFuture();
+    }
+
+    /** Conta a falha e, à quinta, bloqueia a conta por 15 minutos. */
+    public function registarLoginFalhado(): void
+    {
+        $this->tentativas_falhadas++;
+
+        if ($this->tentativas_falhadas >= self::MAX_TENTATIVAS) {
+            $this->bloqueado_ate = now()->addMinutes(self::MINUTOS_BLOQUEIO);
+            $this->tentativas_falhadas = 0;
+        }
+
+        $this->save();
+    }
+
+    public function registarLoginComSucesso(): void
+    {
+        $this->forceFill(['tentativas_falhadas' => 0, 'bloqueado_ate' => null])->save();
     }
 }

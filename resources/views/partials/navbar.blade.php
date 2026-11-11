@@ -20,7 +20,25 @@
             </ul>
 
             <ul class="navbar-nav">
-                {{-- Entrar / Registar / Sair: entram com o registo e o login (UC04, UC05) --}}
+                @guest
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('login') ? 'active' : '' }}"
+                           href="{{ route('login') }}">{{ __('Entrar') }}</a>
+                    </li>
+                    {{-- Registar: entra com o registo de pacientes (UC04) --}}
+                @endguest
+
+                @auth
+                    <li class="nav-item d-flex align-items-center">
+                        <span class="navbar-text me-2">{{ auth()->user()->name }}</span>
+                    </li>
+                    <li class="nav-item d-flex align-items-center">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="btn btn-link nav-link">{{ __('Sair') }}</button>
+                        </form>
+                    </li>
+                @endauth
 
                 <li class="nav-item dropdown">
                     <button class="nav-link dropdown-toggle" type="button"
