@@ -1,11 +1,18 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\DisponibilidadeController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Rececao\PedidoConsultaController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
+
+// UC06 — público: só devolve inícios de vagas livres, sem dados de pacientes.
+Route::get('/disponibilidade', [DisponibilidadeController::class, 'index'])->name('disponibilidade.index');
+Route::get('/disponibilidade/vagas', [DisponibilidadeController::class, 'vagas'])
+    ->middleware('throttle:60,1')
+    ->name('disponibilidade.vagas');
 
 Route::middleware('guest')->group(function () {
     Route::get('/entrar', [LoginController::class, 'create'])->name('login');

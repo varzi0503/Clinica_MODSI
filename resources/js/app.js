@@ -5,3 +5,4 @@ window.bootstrap = bootstrap;
 
 import './ajax.js';
 import './pedidos.js';
+import './disponibilidade.js';
