@@ -40,6 +40,10 @@
                     @endif
                     @if (auth()->user()->temPerfil('profissional'))
                         <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('profissional.agenda.*') ? 'active' : '' }}"
+                               href="{{ route('profissional.agenda.index') }}">{{ __('Agenda') }}</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('profissional.horario.*') ? 'active' : '' }}"
                                href="{{ route('profissional.horario.index') }}">{{ __('O meu horário') }}</a>
                         </li>
