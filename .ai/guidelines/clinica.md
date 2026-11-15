@@ -34,6 +34,6 @@ Plataforma de gestão de consultas médicas (MODSI, ISEP). Laravel 13, PHP 8.4, 
 - Decisão em falta em `docs/decisoes.md`: parar e perguntar, com recomendação e alternativa. Depois de decidida, entrada Dnn no mesmo PR (skill `decisao`).
 - No fim de cada tarefa: dizer o que foi e o que não foi verificado, e dar o bloco PowerShell de entrega (skill `entrega`).
 - Na resposta final, tudo o que o Diogo tem de decidir ou opinar fica numa única secção, no fim.
-- Trabalho que dependa do Timóteo ou do Filipe (tudo o que não é código: seeders, testes no `main`, diagramas, cenários, relatório): escrever a mensagem de WhatsApp pronta a enviar, com o que fazer e como.
+- Mensagens de WhatsApp para o Timóteo ou o Filipe só quando for preciso desenhar um esquema, fazer um diagrama ou alterar o relatório: nesse caso, escrever a mensagem pronta a enviar, com o que fazer e como. Não escrever mensagens só para pedir testes.
 - Skills do projeto (em `.ai/skills/`): `caso-de-uso`, `migracoes`, `entrega`, `decisao`.
 - A skill `infer-conventions` do Boost nunca corre em modo automático: mostrar cada convenção ao Diogo antes de a gravar em `.ai/rules/`.
