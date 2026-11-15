@@ -6,7 +6,6 @@ use App\Enums\EstadoConsulta;
 use App\Models\Consulta;
 use App\Models\Especialidade;
 use App\Models\Paciente;
-use App\Models\Perfil;
 use App\Models\Profissional;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -28,17 +27,10 @@ class PedidosRececaoTest extends TestCase
     {
         parent::setUp();
 
-        $perfilRececionista = Perfil::create(['nome' => 'rececionista']);
-        $perfilProfissional = Perfil::create(['nome' => 'profissional']);
-        Perfil::create(['nome' => 'paciente']);
-
-        $this->rececionista = User::factory()->create(['perfil_id' => $perfilRececionista->id]);
-
-        $user = User::factory()->create(['perfil_id' => $perfilProfissional->id]);
-        $this->profissional = Profissional::create(['user_id' => $user->id, 'tipo' => 'medico', 'num_cedula' => '12345']);
-        $this->especialidade = Especialidade::create(['nome' => 'Cardiologia']);
-        $this->profissional->especialidades()->attach($this->especialidade->id);
-        $this->paciente = Paciente::create(['nome' => 'Augusta Teste', 'num_utente' => '123456789']);
+        $this->rececionista = User::factory()->rececionista()->create();
+        $this->especialidade = Especialidade::factory()->create();
+        $this->profissional = Profissional::factory()->comEspecialidade($this->especialidade)->create();
+        $this->paciente = Paciente::factory()->semConta()->create(['nome' => 'Augusta Teste']);
     }
 
     private function pedido(EstadoConsulta $estado = EstadoConsulta::Pedida, string $inicio = '2026-11-20 10:00:00'): Consulta

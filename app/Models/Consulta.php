@@ -4,10 +4,12 @@ namespace App\Models;
 
 use App\Enums\EstadoConsulta;
 use App\Exceptions\TransicaoEstadoInvalida;
+use Database\Factories\ConsultaFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,6 +22,9 @@ use Illuminate\Support\Facades\DB;
 #[Fillable(['paciente_id', 'profissional_id', 'especialidade_id', 'inicio', 'motivo_consulta'])]
 class Consulta extends Model
 {
+    /** @use HasFactory<ConsultaFactory> */
+    use HasFactory;
+
     protected function casts(): array
     {
         return [
