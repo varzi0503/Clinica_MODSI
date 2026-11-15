@@ -19,3 +19,9 @@ Seguir `2026_11_11_000001_add_estado_faltou_a_consultas.php`: no MySQL saem e vo
 
 ## Vistas e ->change() no SQLite
 Vistas com `DB::statement('CREATE VIEW …')` em SQL portátil (`CASE`, nunca `IF()`), e `down()` com `DROP VIEW IF EXISTS`. No SQLite, um `->change()` numa tabela usada por uma vista reconstrói a tabela e pode falhar: a migration apaga as vistas, faz a alteração e volta a criá-las.
+
+## Chave estrangeira nova numa tabela existente: ADD COLUMN direto no SQLite
+No SQLite, acrescentar uma chave estrangeira pelo Blueprint (`foreignId()->constrained()`) reconstrói a tabela, e a reconstrução relê os enums como varchar e perde o CHECK. Em `consultas` isso apaga a validação do estado nos testes sem nenhum teste falhar. Dentro de `if (DB::getDriverName() === 'sqlite')` usar `DB::statement('alter table … add column … references …')`; em MySQL, o Blueprint normal. Ver `2026_11_15_000001_add_reagendada_de_a_consultas.php`.
+
+## Vistas: DROP VIEW IF EXISTS antes de CREATE VIEW
+O `migrate:fresh` não apaga vistas por omissão, por isso à segunda vez um `CREATE VIEW` simples falha com "already exists". O SQLite não tem `CREATE OR REPLACE VIEW`. No `up()`, apagar cada vista com `DROP VIEW IF EXISTS` antes de a criar. Ver `2026_11_15_000002_create_vistas_consultas.php`.
