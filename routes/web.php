@@ -65,6 +65,8 @@ Route::middleware(['auth', 'perfil:rececionista'])->prefix('rececao')->name('rec
     Route::get('/profissionais', [ProfissionalController::class, 'index'])->name('profissionais.index');
     Route::get('/profissionais/novo', [ProfissionalController::class, 'create'])->name('profissionais.create');
     Route::post('/profissionais', [ProfissionalController::class, 'store'])->name('profissionais.store');
+    Route::get('/profissionais/{profissional}/editar', [ProfissionalController::class, 'edit'])->name('profissionais.edit');
+    Route::put('/profissionais/{profissional}', [ProfissionalController::class, 'update'])->name('profissionais.update');
 });
 
 // POST (e não GET) porque altera o estado da sessão; o formulário leva token CSRF.
