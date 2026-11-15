@@ -1,0 +1,46 @@
+name: Testes
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: ['claude/**']
+  workflow_dispatch:
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: bcmath, mbstring, pdo_sqlite
+          coverage: none
+
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Dependências PHP
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      # Os testes de páginas precisam do manifesto do Vite (public/build).
+      - name: Dependências JS e build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Preparar o .env
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      # A suite usa SQLite em memória (phpunit.xml); não precisa de MySQL.
+      - name: Testes
+        run: php artisan test
