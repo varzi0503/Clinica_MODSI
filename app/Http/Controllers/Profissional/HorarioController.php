@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Consulta;
 use App\Models\Horario;
 use App\Models\Profissional;
+use App\Services\Marcacoes;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -74,7 +76,7 @@ class HorarioController extends Controller
         return redirect()->route('profissional.horario.index')->with('success', __('Período adicionado.'));
     }
 
-    public function destroy(Request $request, Horario $horario): RedirectResponse
+    public function destroy(Request $request, Horario $horario, Marcacoes $marcacoes): RedirectResponse
     {
         // A rota já garantiu que o período é deste profissional (HorarioPolicy::apagar).
         $profissional = $this->profissional($request);
@@ -99,7 +101,11 @@ class HorarioController extends Controller
             return redirect()->route('profissional.horario.index')->with('error', $mensagem);
         }
 
-        $horario->delete();
+        // Os pedidos em espera para vagas deste período deixam de fazer sentido sem ele.
+        DB::transaction(function () use ($horario, $marcacoes): void {
+            $marcacoes->cancelarEsperaDoPeriodo($horario);
+            $horario->delete();
+        });
 
         return redirect()->route('profissional.horario.index')->with('success', __('Período removido.'));
     }

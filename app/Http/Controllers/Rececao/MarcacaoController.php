@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Rececao;
 
+use App\Enums\EstadoConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Rececao\MarcarConsultaRequest;
 use App\Models\Especialidade;
@@ -30,9 +31,13 @@ class MarcacaoController extends Controller
         $profissional = $request->profissional();
         $inicio = $request->inicio();
 
-        $marcacoes->marcarPelaRececao($request->paciente(), $profissional, $request->especialidadeId(), $inicio, $request->motivo(), $request->user());
+        $consulta = $marcacoes->marcarPelaRececao($request->paciente(), $profissional, $request->especialidadeId(), $inicio, $request->motivo(), $request->user(), $request->aceitaEspera());
 
-        return redirect()->route('rececao.consultas.create')->with('success', __('Consulta marcada para :data com :profissional.', [
+        $texto = $consulta->estado === EstadoConsulta::EmEspera
+            ? 'Paciente colocado na lista de espera para :data com :profissional.'
+            : 'Consulta marcada para :data com :profissional.';
+
+        return redirect()->route('rececao.consultas.create')->with('success', __($texto, [
             'data' => $inicio->format('d/m/Y H:i'),
             'profissional' => $profissional->user->name,
         ]));
