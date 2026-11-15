@@ -9,6 +9,7 @@ use App\Http\Controllers\Paciente\PedidoController;
 use App\Http\Controllers\Profissional\AgendaController;
 use App\Http\Controllers\Profissional\HorarioController;
 use App\Http\Controllers\Profissional\RegistoConsultaController;
+use App\Http\Controllers\Rececao\EspecialidadeController;
 use App\Http\Controllers\Rececao\MarcacaoController;
 use App\Http\Controllers\Rececao\PedidoConsultaController;
 use App\Http\Controllers\Rececao\ProfissionalController;
@@ -67,6 +68,12 @@ Route::middleware(['auth', 'perfil:rececionista'])->prefix('rececao')->name('rec
     Route::post('/profissionais', [ProfissionalController::class, 'store'])->name('profissionais.store');
     Route::get('/profissionais/{profissional}/editar', [ProfissionalController::class, 'edit'])->name('profissionais.edit');
     Route::put('/profissionais/{profissional}', [ProfissionalController::class, 'update'])->name('profissionais.update');
+    Route::get('/especialidades', [EspecialidadeController::class, 'index'])->name('especialidades.index');
+    Route::get('/especialidades/nova', [EspecialidadeController::class, 'create'])->name('especialidades.create');
+    Route::post('/especialidades', [EspecialidadeController::class, 'store'])->name('especialidades.store');
+    Route::get('/especialidades/{especialidade}/editar', [EspecialidadeController::class, 'edit'])->name('especialidades.edit');
+    Route::put('/especialidades/{especialidade}', [EspecialidadeController::class, 'update'])->name('especialidades.update');
+    Route::delete('/especialidades/{especialidade}', [EspecialidadeController::class, 'destroy'])->name('especialidades.destroy');
 });
 
 // POST (e não GET) porque altera o estado da sessão; o formulário leva token CSRF.

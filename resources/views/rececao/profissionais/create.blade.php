@@ -9,7 +9,10 @@
             <p class="text-muted small mb-4">{{ __('Cria a conta e a ficha de uma vez. O horário de atendimento é definido pelo próprio profissional, depois de entrar.') }}</p>
 
             @if ($especialidades->isEmpty())
-                <div class="alert alert-warning">{{ __('Ainda não há especialidades. Crie pelo menos uma antes de criar profissionais.') }}</div>
+                <div class="alert alert-warning">
+                    {{ __('Ainda não há especialidades. Crie pelo menos uma antes de criar profissionais.') }}
+                    <a href="{{ route('rececao.especialidades.create') }}" class="alert-link">{{ __('Nova especialidade') }}</a>
+                </div>
             @endif
 
             <form method="POST" action="{{ route('rececao.profissionais.store') }}" novalidate>
