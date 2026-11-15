@@ -95,6 +95,7 @@ class PedidosRececaoTest extends TestCase
         $consulta->mudarEstado(EstadoConsulta::Confirmada, $this->rececionista);
 
         $this->actingAs($this->rececionista)
+            ->from(route('rececao.pedidos.index'))
             ->post(route('rececao.pedidos.confirmar', $consulta))
             ->assertRedirect(route('rececao.pedidos.index'))
             ->assertSessionHas('error');

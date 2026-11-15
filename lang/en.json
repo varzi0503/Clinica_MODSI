@@ -47,6 +47,7 @@
     "Escolha o paciente": "Choose the patient",
     "Escolha uma especialidade": "Choose a specialty",
     "Especialidade": "Specialty",
+    "Esta consulta já mudou de estado. Atualize a página e tente de novo.": "This appointment has already changed state. Refresh the page and try again.",
     "Esta conta tem ficha de paciente ou de profissional: o perfil não pode ser alterado.": "This account has a patient or professional record: its role cannot be changed.",
     "Esta vaga já não está disponível.": "This slot is no longer available.",
     "Estado": "Status",
