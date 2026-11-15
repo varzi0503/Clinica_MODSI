@@ -10,6 +10,7 @@ use App\Http\Controllers\Profissional\AgendaController;
 use App\Http\Controllers\Profissional\HorarioController;
 use App\Http\Controllers\Profissional\RegistoConsultaController;
 use App\Http\Controllers\Rececao\EspecialidadeController;
+use App\Http\Controllers\Rececao\EstatisticasController;
 use App\Http\Controllers\Rececao\MarcacaoController;
 use App\Http\Controllers\Rececao\PedidoConsultaController;
 use App\Http\Controllers\Rececao\ProfissionalController;
@@ -74,6 +75,7 @@ Route::middleware(['auth', 'perfil:rececionista'])->prefix('rececao')->name('rec
     Route::get('/especialidades/{especialidade}/editar', [EspecialidadeController::class, 'edit'])->name('especialidades.edit');
     Route::put('/especialidades/{especialidade}', [EspecialidadeController::class, 'update'])->name('especialidades.update');
     Route::delete('/especialidades/{especialidade}', [EspecialidadeController::class, 'destroy'])->name('especialidades.destroy');
+    Route::get('/estatisticas', [EstatisticasController::class, 'index'])->name('estatisticas.index');
 });
 
 // POST (e não GET) porque altera o estado da sessão; o formulário leva token CSRF.
