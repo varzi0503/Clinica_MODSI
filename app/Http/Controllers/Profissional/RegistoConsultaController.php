@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 /**
  * UC13 — o profissional regista a consulta como realizada ou falta (issue #63).
- * Só consultas confirmadas, só depois da hora de início, só as suas.
+ * Só consultas confirmadas, só depois da hora de início, só as suas (ConsultaPolicy::registar, na rota).
  */
 class RegistoConsultaController extends Controller
 {
@@ -26,9 +26,6 @@ class RegistoConsultaController extends Controller
 
     private function registar(Request $request, Consulta $consulta, EstadoConsulta $novo, string $mensagem): RedirectResponse
     {
-        $profissional = $request->user()->profissional;
-        abort_unless($profissional && $consulta->profissional_id === $profissional->id, 403);
-
         if ($consulta->inicio->isFuture()) {
             return back()->with('error', __('Só pode registar a consulta depois da hora de início.'));
         }

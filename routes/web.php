@@ -51,17 +51,17 @@ Route::middleware(['auth', 'perfil:paciente'])->prefix('paciente')->name('pacien
 
 Route::middleware(['auth', 'perfil:profissional'])->prefix('profissional')->name('profissional.')->group(function () {
     Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
-    Route::post('/consultas/{consulta}/realizada', [RegistoConsultaController::class, 'realizada'])->name('consultas.realizada');
-    Route::post('/consultas/{consulta}/faltou', [RegistoConsultaController::class, 'faltou'])->name('consultas.faltou');
+    Route::post('/consultas/{consulta}/realizada', [RegistoConsultaController::class, 'realizada'])->can('registar', 'consulta')->name('consultas.realizada');
+    Route::post('/consultas/{consulta}/faltou', [RegistoConsultaController::class, 'faltou'])->can('registar', 'consulta')->name('consultas.faltou');
     Route::get('/horario', [HorarioController::class, 'index'])->name('horario.index');
     Route::post('/horario', [HorarioController::class, 'store'])->name('horario.store');
-    Route::delete('/horario/{horario}', [HorarioController::class, 'destroy'])->name('horario.destroy');
+    Route::delete('/horario/{horario}', [HorarioController::class, 'destroy'])->can('apagar', 'horario')->name('horario.destroy');
 });
 
 Route::middleware(['auth', 'perfil:rececionista'])->prefix('rececao')->name('rececao.')->group(function () {
     Route::get('/pedidos', [PedidoConsultaController::class, 'index'])->name('pedidos.index');
-    Route::post('/pedidos/{consulta}/confirmar', [PedidoConsultaController::class, 'confirmar'])->name('pedidos.confirmar');
-    Route::post('/pedidos/{consulta}/rejeitar', [PedidoConsultaController::class, 'rejeitar'])->name('pedidos.rejeitar');
+    Route::post('/pedidos/{consulta}/confirmar', [PedidoConsultaController::class, 'confirmar'])->can('confirmar', 'consulta')->name('pedidos.confirmar');
+    Route::post('/pedidos/{consulta}/rejeitar', [PedidoConsultaController::class, 'rejeitar'])->can('rejeitar', 'consulta')->name('pedidos.rejeitar');
     Route::get('/consultas/marcar', [MarcacaoController::class, 'create'])->name('consultas.create');
     Route::post('/consultas', [MarcacaoController::class, 'store'])->name('consultas.store');
     Route::get('/profissionais', [ProfissionalController::class, 'index'])->name('profissionais.index');

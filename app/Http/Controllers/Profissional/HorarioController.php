@@ -76,8 +76,8 @@ class HorarioController extends Controller
 
     public function destroy(Request $request, Horario $horario): RedirectResponse
     {
+        // A rota já garantiu que o período é deste profissional (HorarioPolicy::apagar).
         $profissional = $this->profissional($request);
-        abort_unless($profissional && $horario->profissional_id === $profissional->id, 403);
 
         $consultasNoPeriodo = Consulta::where('profissional_id', $profissional->id)
             ->where('inicio', '>', CarbonImmutable::now())
