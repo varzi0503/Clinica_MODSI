@@ -9,6 +9,8 @@
          data-url="{{ route('disponibilidade.vagas') }}"
          data-locale="{{ str_replace('_', '-', app()->getLocale()) }}"
          data-texto-sem-vagas="{{ __('Sem vagas livres neste período.') }}"
+         data-texto-espera="{{ __('Lista de espera') }}"
+         data-texto-legenda="{{ __('As vagas a tracejado já estão ocupadas: pode ficar em lista de espera.') }}"
          data-texto-erro="{{ __('Ocorreu um erro. Recarrega a página.') }}">
 
         <form class="row g-2 align-items-end mb-3" data-filtro novalidate>
@@ -35,11 +37,13 @@
             <input type="hidden" name="especialidade_id" value="{{ old('especialidade_id') }}">
             <input type="hidden" name="profissional_id" value="{{ old('profissional_id') }}">
             <input type="hidden" name="inicio" value="{{ old('inicio') }}">
+            <input type="hidden" name="lista_espera" value="{{ old('lista_espera', 0) }}">
 
             <p class="mb-3">
                 <span class="text-muted">{{ __('Vaga escolhida') }}:</span>
                 <strong data-escolha></strong>
             </p>
+            <div class="alert alert-info py-2 d-none" data-aviso-espera>{{ __('Esta vaga já está ocupada. O pedido fica em lista de espera e só avança se a vaga ficar livre.') }}</div>
             @error('inicio')
                 <div class="alert alert-danger py-2">{{ $message }}</div>
             @enderror

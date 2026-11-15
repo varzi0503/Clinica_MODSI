@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Paciente;
 
+use App\Enums\EstadoConsulta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Paciente\PedirConsultaRequest;
 use App\Models\Especialidade;
@@ -35,9 +36,13 @@ class PedidoController extends Controller
         $profissional = $request->profissional();
         $inicio = $request->inicio();
 
-        $marcacoes->pedir($request->paciente(), $profissional, $request->especialidadeId(), $inicio, $request->motivo(), $request->user());
+        $consulta = $marcacoes->pedir($request->paciente(), $profissional, $request->especialidadeId(), $inicio, $request->motivo(), $request->user(), $request->aceitaEspera());
 
-        return redirect()->route('paciente.pedidos.create')->with('success', __('Pedido enviado para :data com :profissional. A receção vai confirmá-lo.', [
+        $texto = $consulta->estado === EstadoConsulta::EmEspera
+            ? 'Ficou na lista de espera para :data com :profissional. Se a vaga ficar livre, o seu pedido passa a pendente.'
+            : 'Pedido enviado para :data com :profissional. A receção vai confirmá-lo.';
+
+        return redirect()->route('paciente.pedidos.create')->with('success', __($texto, [
             'data' => $inicio->format('d/m/Y H:i'),
             'profissional' => $profissional->user->name,
         ]));
