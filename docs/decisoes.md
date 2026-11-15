@@ -40,6 +40,8 @@ A partir de 3 de novembro de 2026, as decisões técnicas são tomadas pelo Diog
 | D29 | Fluxo de trabalho revisto (substitui D17) | Processo |
 | D30 | Traduções: fallback em inglês e sem `trans_choice` | Interface |
 | D31 | Reagendar cria uma consulta nova ligada à antiga | Modelo de dados |
+| D32 | Promoção da lista de espera sempre que uma vaga se liberta | Âmbito |
+| D33 | Pedidos em espera de vagas que já passaram | Âmbito |
 
 ---
 
@@ -447,3 +449,33 @@ Os formulários continuam a funcionar sem JavaScript.
 **Alternativa rejeitada:** atualizar o `inicio` da consulta existente. Era mais simples, mas perdia-se a hora original e uma consulta reagendada ficava igual a uma que nunca mudou.
 
 **Consequência:** a coluna entra já, antes das vistas SQL (#36), porque no SQLite uma alteração a uma tabela usada por uma vista obriga a apagar e recriar as vistas. O fluxo de reagendar é da issue #67.
+
+---
+
+## D32 — Promoção da lista de espera sempre que uma vaga se liberta
+
+**Decisão:** quando uma consulta deixa de ocupar a vaga, o primeiro pedido `em_espera` para essa vaga (mesmo profissional e mesma hora, por ordem de `data_pedido`) passa a `pedida`. Isto acontece em qualquer transição que liberte a vaga: cancelar, rejeitar e reagendar. A promoção é feita pelo sistema (o histórico fica com `user_id` nulo) e dentro da mesma transação que liberta a vaga. Se o primeiro da lista já tiver outra consulta a essa hora, passa-se ao seguinte, sem desfazer o que já foi feito.
+
+**Porquê:**
+- Se a promoção só acontecesse em algumas transições, haveria vagas livres com pacientes em espera, e a lista de espera (D21) deixava de cumprir o que promete.
+- Na mesma transação, ou a vaga muda de mãos por inteiro ou não muda: nunca fica livre com um pedido em espera por promover, nem promovida duas vezes por dois pedidos simultâneos.
+- O pedido promovido fica `pedida`, e não `confirmada`: continua a ser a receção a confirmar (D24).
+
+**Alternativa rejeitada:** promover só quando a receção cancela, ou avisar a receção para promover à mão. Dependia de alguém se lembrar e deixava vagas por aproveitar.
+
+**Consequência:** a promoção fica num único sítio, o serviço `Marcacoes`, e todos os casos de uso que libertam vagas passam por ele (issues #54, #64, #67 e #75).
+
+---
+
+## D33 — Pedidos em espera de vagas que já passaram
+
+**Decisão:** um pedido `em_espera` cuja vaga já passou não é promovido nem aparece nas listas. Para os fechar há um comando, `php artisan consultas:expirar-espera`, que os passa a `cancelada` com o motivo "vaga expirada", em nome do sistema. O comando corre-se à mão; não depende do agendador do Laravel.
+
+**Porquê:**
+- Um pedido em espera para uma hora que já passou nunca vai ser atendido. Deixá-lo em espera para sempre falseava as estatísticas e a lista de espera.
+- Na demonstração e nas máquinas do grupo ninguém tem o agendador a correr. Uma regra que dependesse dele nunca seria aplicada.
+- A transição `em_espera` → `cancelada` já existe na matriz (D19): não é preciso um estado novo.
+
+**Alternativa rejeitada:** um estado próprio (`expirada`) ou cancelar automaticamente pelo agendador. O primeiro obrigava a mexer no enum e na coluna gerada; o segundo não funcionava onde o agendador não corre.
+
+**Consequência:** as listas e a promoção (D32) filtram sempre por vagas futuras. O comando é da issue #75.
