@@ -80,8 +80,30 @@
                                             <button type="submit" class="btn btn-sm btn-outline-secondary">{{ __('Faltou') }}</button>
                                         </form>
                                     </div>
+                                @elseif ($consulta->estado === \App\Enums\EstadoConsulta::Confirmada)
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="collapse" data-bs-target="#cancelar-{{ $consulta->id }}"
+                                            aria-expanded="false" aria-controls="cancelar-{{ $consulta->id }}">{{ __('Cancelar') }}</button>
                                 @endif
                             </div>
+                            @if ($consulta->estado === \App\Enums\EstadoConsulta::Confirmada && $consulta->inicio->isFuture())
+                                <div class="collapse w-100 {{ old('consulta_id') == $consulta->id ? 'show' : '' }}" id="cancelar-{{ $consulta->id }}">
+                                    <form method="POST" action="{{ route('profissional.consultas.cancelar', $consulta) }}" class="d-flex flex-wrap gap-2 align-items-start">
+                                        @csrf
+                                        <input type="hidden" name="consulta_id" value="{{ $consulta->id }}">
+                                        <div class="flex-grow-1">
+                                            <label for="motivo-{{ $consulta->id }}" class="visually-hidden">{{ __('Motivo') }}</label>
+                                            <input type="text" id="motivo-{{ $consulta->id }}" name="motivo" maxlength="255" required
+                                                   class="form-control form-control-sm @if (old('consulta_id') == $consulta->id) @error('motivo') is-invalid @enderror @endif"
+                                                   placeholder="{{ __('Motivo do cancelamento') }}">
+                                            @if (old('consulta_id') == $consulta->id)
+                                                @error('motivo') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                            @endif
+                                        </div>
+                                        <button type="submit" class="btn btn-sm btn-danger">{{ __('Confirmar cancelamento') }}</button>
+                                    </form>
+                                </div>
+                            @endif
                         </li>
                     @endforeach
                 </ul>
