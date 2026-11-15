@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Rececao;
 
 use App\Enums\TipoProfissional;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Rececao\AtualizarProfissionalRequest;
 use App\Http\Requests\Rececao\CriarProfissionalRequest;
 use App\Models\Especialidade;
 use App\Models\Perfil;
@@ -70,6 +71,40 @@ class ProfissionalController extends Controller
 
         return redirect()->route('rececao.profissionais.index')
             ->with('success', __('Profissional :nome criado.', ['nome' => $profissional->user->name]));
+    }
+
+    public function edit(Profissional $profissional): View
+    {
+        return view('rececao.profissionais.edit', [
+            'profissional' => $profissional->load(['user', 'especialidades']),
+            'tipos' => TipoProfissional::cases(),
+            'especialidades' => Especialidade::orderBy('nome')->get(),
+        ]);
+    }
+
+    public function update(AtualizarProfissionalRequest $request, Profissional $profissional): RedirectResponse
+    {
+        $dados = $request->validated();
+
+        try {
+            // O nome é da conta (users.name); o resto é da ficha.
+            DB::transaction(function () use ($profissional, $dados): void {
+                $profissional->user->update(['name' => $dados['name']]);
+                $profissional->update([
+                    'tipo' => $dados['tipo'],
+                    'num_cedula' => $dados['num_cedula'],
+                    'contacto' => $dados['contacto'] ?? null,
+                ]);
+                $profissional->especialidades()->sync($dados['especialidades']);
+            });
+        } catch (UniqueConstraintViolationException) {
+            throw ValidationException::withMessages([
+                'num_cedula' => __('Já existe um profissional deste tipo com este nº de cédula.'),
+            ]);
+        }
+
+        return redirect()->route('rececao.profissionais.index')
+            ->with('success', __('Profissional :nome atualizado.', ['nome' => $dados['name']]));
     }
 
     /**
