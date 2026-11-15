@@ -6,7 +6,6 @@ use App\Enums\EstadoConsulta;
 use App\Models\Consulta;
 use App\Models\Especialidade;
 use App\Models\Paciente;
-use App\Models\Perfil;
 use App\Models\Profissional;
 use App\Models\User;
 use Carbon\CarbonImmutable;
@@ -17,13 +16,9 @@ class RegistoConsultaTest extends TestCase
 {
     use RefreshDatabase;
 
-    private Perfil $perfilProfissional;
-
     private Profissional $medica;
 
     private Especialidade $cardiologia;
-
-    private int $utente = 100000000;
 
     protected function setUp(): void
     {
@@ -32,25 +27,18 @@ class RegistoConsultaTest extends TestCase
         // Quarta-feira, 18 nov. 2026, 11:00.
         $this->travelTo(CarbonImmutable::parse('2026-11-18 11:00:00'));
 
-        $this->perfilProfissional = Perfil::create(['nome' => 'profissional']);
-        $this->cardiologia = Especialidade::create(['nome' => 'Cardiologia']);
-        $this->medica = $this->criarProfissional('1');
+        $this->cardiologia = Especialidade::factory()->create();
+        $this->medica = $this->criarProfissional();
     }
 
-    private function criarProfissional(string $cedula): Profissional
+    private function criarProfissional(): Profissional
     {
-        $p = Profissional::create([
-            'user_id' => User::factory()->create(['perfil_id' => $this->perfilProfissional->id])->id,
-            'tipo' => 'medico', 'num_cedula' => $cedula,
-        ]);
-        $p->especialidades()->attach($this->cardiologia->id);
-
-        return $p;
+        return Profissional::factory()->comEspecialidade($this->cardiologia)->create();
     }
 
     private function confirmada(string $inicio, ?Profissional $de = null, bool $confirmar = true): Consulta
     {
-        $paciente = Paciente::create(['nome' => 'Paciente '.$this->utente, 'num_utente' => (string) $this->utente++]);
+        $paciente = Paciente::factory()->semConta()->create();
         $consulta = Consulta::registarPedido([
             'paciente_id' => $paciente->id,
             'profissional_id' => ($de ?? $this->medica)->id,
@@ -115,7 +103,7 @@ class RegistoConsultaTest extends TestCase
 
     public function test_nao_regista_consulta_de_outro_profissional(): void
     {
-        $consulta = $this->confirmada('2026-11-18 10:00:00', $this->criarProfissional('2'));
+        $consulta = $this->confirmada('2026-11-18 10:00:00', $this->criarProfissional());
 
         $this->actingAs($this->medica->user)->post(route('profissional.consultas.realizada', $consulta))->assertForbidden();
 
@@ -136,7 +124,7 @@ class RegistoConsultaTest extends TestCase
     public function test_outros_perfis_nao_registam(): void
     {
         $consulta = $this->confirmada('2026-11-18 10:00:00');
-        $rececionista = User::factory()->create(['perfil_id' => Perfil::create(['nome' => 'rececionista'])->id]);
+        $rececionista = User::factory()->rececionista()->create();
 
         $this->actingAs($rececionista)->post(route('profissional.consultas.realizada', $consulta))->assertForbidden();
 

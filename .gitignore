@@ -25,3 +25,6 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Cópias das skills geradas pelo Boost (php artisan boost:update); a origem está em .ai/skills
+/.claude/skills
