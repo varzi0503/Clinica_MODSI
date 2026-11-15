@@ -129,6 +129,28 @@ class FactoriesTest extends TestCase
         $this->assertTrue($consulta->data_estado->lessThanOrEqualTo(now()));
     }
 
+    public function test_com_autores_atribui_cada_passo_do_historico_a_quem_o_faria(): void
+    {
+        $rececionista = User::factory()->rececionista()->create();
+
+        $realizada = Consulta::factory()->realizada()->comAutores($rececionista)->create();
+        $balcao = Consulta::factory()->rejeitada()->comAutores($rececionista)
+            ->for(Paciente::factory()->semConta())->create();
+
+        $this->assertSame(
+            [$realizada->paciente->user_id, $rececionista->id, $realizada->profissional->user_id],
+            $realizada->historico()->pluck('user_id')->all(),
+        );
+        $this->assertSame([$rececionista->id, $rececionista->id], $balcao->historico()->pluck('user_id')->all());
+    }
+
+    public function test_sem_autores_o_historico_fica_como_mudanca_do_sistema(): void
+    {
+        $consulta = Consulta::factory()->confirmada()->create();
+
+        $this->assertSame([null, null], $consulta->historico()->pluck('user_id')->all());
+    }
+
     public function test_profissional_tem_conta_com_o_perfil_profissional(): void
     {
         $medico = Profissional::factory()->create();
