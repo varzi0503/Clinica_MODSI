@@ -42,6 +42,7 @@ A partir de 3 de novembro de 2026, as decisões técnicas são tomadas pelo Diog
 | D31 | Reagendar cria uma consulta nova ligada à antiga | Modelo de dados |
 | D32 | Promoção da lista de espera sempre que uma vaga se liberta | Âmbito |
 | D33 | Pedidos em espera de vagas que já passaram | Âmbito |
+| D34 | Cancelamento pelo paciente e pelo profissional: prazos e motivo | Âmbito |
 
 ---
 
@@ -479,3 +480,22 @@ Os formulários continuam a funcionar sem JavaScript.
 **Alternativa rejeitada:** um estado próprio (`expirada`) ou cancelar automaticamente pelo agendador. O primeiro obrigava a mexer no enum e na coluna gerada; o segundo não funcionava onde o agendador não corre.
 
 **Consequência:** as listas e a promoção (D32) filtram sempre por vagas futuras. O comando é da issue #75.
+
+---
+
+## D34 — Cancelamento pelo paciente e pelo profissional: prazos e motivo
+
+**Decisão:**
+- **Paciente:** cancela um pedido ou uma consulta confirmada até 24 horas antes da hora marcada. Dentro das 24 horas a aplicação recusa e manda contactar a receção. O motivo é opcional. Um pedido em lista de espera pode ser retirado até à hora da vaga, porque não ocupa nada.
+- **Profissional:** cancela por indisponibilidade as suas consultas confirmadas que ainda não começaram, sem antecedência mínima. O motivo é obrigatório. Não cancela pedidos pendentes (são da receção) nem consultas que já começaram (essas registam-se como realizada ou falta, D25).
+- **Receção:** cancela qualquer consulta, com motivo obrigatório, como na rejeição (issue #67).
+- Em todos os casos a consulta passa a `cancelada`, o motivo fica no histórico e a lista de espera é promovida na mesma transação (D32).
+
+**Porquê:**
+- Uma vaga libertada em cima da hora dificilmente é aproveitada. As 24 horas dão tempo à lista de espera e à receção.
+- A indisponibilidade de um profissional pode ser de última hora (doença), por isso não tem prazo; em troca exige-se o motivo, que o paciente e a receção vão querer saber.
+- Quem pode cancelar (posse) fica na `ConsultaPolicy`; o prazo é uma regra de negócio e fica no serviço `Marcacoes`.
+
+**Alternativa rejeitada:** deixar o paciente cancelar até à hora de início. Era mais simples, mas permitia libertar a vaga quando já ninguém a pode usar.
+
+**Consequência:** o paciente passa a ter a página "As minhas consultas", com as consultas futuras; o histórico completo é da issue #55. O cenário 3.4.4 do relatório tem de referir o prazo das 24 horas.
