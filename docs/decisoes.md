@@ -39,6 +39,7 @@ A partir de 3 de novembro de 2026, as decisões técnicas são tomadas pelo Diog
 | D28 | Convenção das respostas AJAX | Interface |
 | D29 | Fluxo de trabalho revisto (substitui D17) | Processo |
 | D30 | Traduções: fallback em inglês e sem `trans_choice` | Interface |
+| D31 | Reagendar cria uma consulta nova ligada à antiga | Modelo de dados |
 
 ---
 
@@ -431,3 +432,18 @@ Os formulários continuam a funcionar sem JavaScript.
 **Decisão:** o idioma de fallback é `en`. Os textos escrevem-se em português com `__()` e a tradução inglesa vai para `lang/en.json`, por ordem alfabética. Não se usa `trans_choice()`; para singular e plural usam-se duas mensagens.
 
 **Porquê:** quando a chave não está no `pt.json`, o `trans_choice()` escolhe o idioma de fallback e mostrava a mensagem em inglês a quem tem a interface em português. O `__()` não tem este comportamento.
+
+---
+
+## D31 — Reagendar cria uma consulta nova ligada à antiga
+
+**Decisão:** reagendar uma consulta não muda a hora da consulta existente. Na mesma transação, a consulta antiga passa a `cancelada` com o motivo "reagendada" e nasce uma consulta nova na vaga escolhida, com `consultas.reagendada_de_id` a apontar para a antiga. A coluna é uma chave estrangeira opcional para a própria tabela e fica nula em todas as consultas que não vêm de um reagendamento.
+
+**Porquê:**
+- O histórico de estados (D23) guarda o estado e a data da mudança, mas não a hora da consulta. Se a hora fosse alterada no mesmo registo, o histórico deixava de dizer para quando a consulta estava marcada quando foi pedida e confirmada.
+- A vaga antiga fica livre pela regra que já existe: uma consulta `cancelada` não ocupa a vaga (D20). Não é preciso lógica nova para cumprir o RNF04.
+- As estatísticas contam os reagendamentos sem mais nada: são as consultas com `reagendada_de_id` preenchido.
+
+**Alternativa rejeitada:** atualizar o `inicio` da consulta existente. Era mais simples, mas perdia-se a hora original e uma consulta reagendada ficava igual a uma que nunca mudou.
+
+**Consequência:** a coluna entra já, antes das vistas SQL (#36), porque no SQLite uma alteração a uma tabela usada por uma vista obriga a apagar e recriar as vistas. O fluxo de reagendar é da issue #67.
