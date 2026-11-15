@@ -68,6 +68,7 @@ Seeders e ficheiros do repositório (`docs/`, diagramas) seguem o fluxo de códi
 | `db` | Migrations, vistas, seeders |
 | `docs` | Relatório, README, diagramas |
 | `chore` | Configuração, dependências |
+| `refactor` | Reorganizar código sem mudar o comportamento (os testes passam sem mudar asserções) |
 
 Exemplos: `feat/53-pedir-consulta`, `db/37-seeders-demo`, `docs/31-diagrama-uc`.
 
