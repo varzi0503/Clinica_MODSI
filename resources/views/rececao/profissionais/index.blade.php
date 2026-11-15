@@ -41,6 +41,7 @@
                         <th>{{ __('Especialidades') }}</th>
                         <th>{{ __('Contacto') }}</th>
                         <th>{{ __('Conta') }}</th>
+                        <th class="text-end">{{ __('Ações') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -60,6 +61,9 @@
                                 @else
                                     <span class="badge text-bg-secondary">{{ __('Desativada') }}</span>
                                 @endif
+                            </td>
+                            <td class="text-end">
+                                <a href="{{ route('rececao.profissionais.edit', $profissional) }}" class="btn btn-sm btn-outline-primary">{{ __('Editar') }}</a>
                             </td>
                         </tr>
                     @endforeach
