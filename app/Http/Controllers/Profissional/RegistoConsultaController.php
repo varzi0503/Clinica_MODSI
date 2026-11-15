@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Profissional;
 
 use App\Enums\EstadoConsulta;
-use App\Exceptions\TransicaoEstadoInvalida;
 use App\Http\Controllers\Controller;
 use App\Models\Consulta;
 use Illuminate\Http\RedirectResponse;
@@ -34,11 +33,8 @@ class RegistoConsultaController extends Controller
             return back()->with('error', __('Só pode registar a consulta depois da hora de início.'));
         }
 
-        try {
-            $consulta->mudarEstado($novo, $request->user());
-        } catch (TransicaoEstadoInvalida) {
-            return back()->with('error', __('Só é possível registar consultas confirmadas.'));
-        }
+        // Uma consulta que não está confirmada lança TransicaoEstadoInvalida, respondida em bootstrap/app.php.
+        $consulta->mudarEstado($novo, $request->user());
 
         return back()->with('success', $mensagem);
     }

@@ -101,6 +101,18 @@ class RegistoConsultaTest extends TestCase
         $this->assertSame(EstadoConsulta::Realizada, $realizada->fresh()->estado);
     }
 
+    public function test_consulta_nao_confirmada_devolve_409_em_json(): void
+    {
+        $pedida = $this->confirmada('2026-11-18 09:00:00', confirmar: false);
+
+        $this->actingAs($this->medica->user)
+            ->postJson(route('profissional.consultas.realizada', $pedida))
+            ->assertStatus(409)
+            ->assertExactJson(['message' => 'Só é possível registar consultas confirmadas.']);
+
+        $this->assertSame(EstadoConsulta::Pedida, $pedida->fresh()->estado);
+    }
+
     public function test_nao_regista_consulta_de_outro_profissional(): void
     {
         $consulta = $this->confirmada('2026-11-18 10:00:00', $this->criarProfissional());

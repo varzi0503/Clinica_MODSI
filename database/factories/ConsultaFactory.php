@@ -6,6 +6,7 @@ use App\Enums\EstadoConsulta;
 use App\Models\Consulta;
 use App\Models\Paciente;
 use App\Models\Profissional;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -117,6 +118,25 @@ class ConsultaFactory extends Factory
             'estado' => EstadoConsulta::Faltou,
             'inicio' => fn (): CarbonImmutable => self::proximaVagaPassada(),
         ]);
+    }
+
+    /**
+     * Preenche os autores do histórico, que por omissão ficam nulos (mudança feita pelo sistema).
+     * O pedido é do paciente, ou da receção se a ficha não tiver conta (marcação ao balcão, D24).
+     * Confirmar, rejeitar e cancelar são da receção; realizada e falta são do profissional (D25).
+     */
+    public function comAutores(User $rececionista): static
+    {
+        return $this->afterCreating(function (Consulta $consulta) use ($rececionista): void {
+            foreach ($consulta->historico()->get() as $passo => $registo) {
+                $registo->user_id = match (true) {
+                    $passo === 0 => $consulta->paciente->user_id ?? $rececionista->id,
+                    in_array($registo->estado, [EstadoConsulta::Realizada, EstadoConsulta::Faltou], true) => $consulta->profissional->user_id,
+                    default => $rececionista->id,
+                };
+                $registo->save();
+            }
+        });
     }
 
     /**
