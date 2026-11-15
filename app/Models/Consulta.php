@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 
 // Sem created_at/updated_at: a tabela usa data_pedido e data_estado.
@@ -51,6 +52,26 @@ class Consulta extends Model
     public function especialidade(): BelongsTo
     {
         return $this->belongsTo(Especialidade::class);
+    }
+
+    /**
+     * A consulta que esta substituiu, quando nasceu de um reagendamento (D31).
+     *
+     * @return BelongsTo<Consulta, $this>
+     */
+    public function reagendadaDe(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'reagendada_de_id');
+    }
+
+    /**
+     * A consulta que substituiu esta, se foi reagendada (D31).
+     *
+     * @return HasOne<Consulta, $this>
+     */
+    public function reagendamento(): HasOne
+    {
+        return $this->hasOne(self::class, 'reagendada_de_id');
     }
 
     /** @return HasMany<HistoricoEstado, $this> */
