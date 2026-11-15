@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Rececao;
 use App\Enums\EstadoConsulta;
 use App\Http\Controllers\Controller;
 use App\Models\Consulta;
+use App\Services\Marcacoes;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,7 +13,7 @@ use Illuminate\View\View;
 
 /**
  * UC16 — a receção confirma ou rejeita pedidos de consulta.
- * A promoção da lista de espera quando uma vaga se liberta é do âmbito da issue #75.
+ * Rejeitar liberta a vaga e promove a lista de espera (D32).
  */
 class PedidoConsultaController extends Controller
 {
@@ -29,24 +30,25 @@ class PedidoConsultaController extends Controller
 
     public function confirmar(Request $request, Consulta $consulta): RedirectResponse|JsonResponse
     {
-        return $this->transitar($request, $consulta, EstadoConsulta::Confirmada, null,
-            __('Consulta confirmada.'));
+        // Se outro utilizador tratou o pedido entretanto (duplo clique, duas rececionistas),
+        // mudarEstado() lança TransicaoEstadoInvalida, que é respondida em bootstrap/app.php.
+        $consulta->mudarEstado(EstadoConsulta::Confirmada, $request->user());
+
+        return $this->concluir($request, __('Consulta confirmada.'));
     }
 
-    public function rejeitar(Request $request, Consulta $consulta): RedirectResponse|JsonResponse
+    public function rejeitar(Request $request, Consulta $consulta, Marcacoes $marcacoes): RedirectResponse|JsonResponse
     {
         $dados = $request->validate(['motivo' => ['required', 'string', 'max:255']]);
 
-        return $this->transitar($request, $consulta, EstadoConsulta::Rejeitada, $dados['motivo'],
-            __('Pedido rejeitado.'));
+        // Rejeitar liberta a vaga: o serviço promove a lista de espera na mesma transação (D32).
+        $marcacoes->rejeitar($consulta, $request->user(), $dados['motivo']);
+
+        return $this->concluir($request, __('Pedido rejeitado.'));
     }
 
-    private function transitar(Request $request, Consulta $consulta, EstadoConsulta $novo, ?string $motivo, string $mensagem): RedirectResponse|JsonResponse
+    private function concluir(Request $request, string $mensagem): RedirectResponse|JsonResponse
     {
-        // Se outro utilizador tratou o pedido entretanto (duplo clique, duas rececionistas),
-        // mudarEstado() lança TransicaoEstadoInvalida, que é respondida em bootstrap/app.php.
-        $consulta->mudarEstado($novo, $request->user(), $motivo);
-
         return $request->expectsJson()
             ? response()->json(['message' => $mensagem])
             : redirect()->route('rececao.pedidos.index')->with('success', $mensagem);

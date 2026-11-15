@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Especialidade;
+use App\Models\Perfil;
 use App\Models\Profissional;
 use App\Services\Disponibilidade;
 use Carbon\CarbonImmutable;
@@ -46,6 +47,10 @@ class DisponibilidadeController extends Controller
             ->sortBy(fn (Profissional $p) => $p->user->name)
             ->values();
 
+        // As vagas ocupadas só interessam a quem pode pedir lista de espera: o paciente e a receção.
+        // A página pública continua a receber só as vagas livres (D27).
+        $comOcupadas = (bool) $request->user()?->temPerfil(Perfil::PACIENTE, Perfil::RECECIONISTA);
+
         return response()->json([
             'de' => $de->toDateString(),
             'ate' => $ate->toDateString(),
@@ -57,7 +62,11 @@ class DisponibilidadeController extends Controller
                 'vagas' => $disponibilidade->vagasLivres($p, $de, $ate)
                     ->map(fn (CarbonImmutable $v) => $v->format('Y-m-d\TH:i'))
                     ->all(),
-            ]),
+            ] + ($comOcupadas ? [
+                'ocupadas' => $disponibilidade->vagasOcupadas($p, $de, $ate)
+                    ->map(fn (CarbonImmutable $v) => $v->format('Y-m-d\TH:i'))
+                    ->all(),
+            ] : [])),
         ]);
     }
 }

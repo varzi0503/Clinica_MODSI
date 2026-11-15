@@ -5,7 +5,9 @@
  *
  * Com data-selecionavel="true" (UC17, marcar consulta), cada vaga é um botão
  * que preenche os campos escondidos profissional_id e inicio do formulário
- * [data-marcacao] da mesma página.
+ * [data-marcacao] da mesma página. Nessas páginas o servidor devolve também as vagas
+ * ocupadas (issue #75): aparecem a tracejado e, ao escolher uma, o pedido segue com
+ * lista_espera=1 para ficar em lista de espera.
  */
 const pagina = document.querySelector('[data-pagina="disponibilidade"]');
 
@@ -21,12 +23,14 @@ if (pagina) {
         if (!marcacao) return;
         marcacao.profissional_id.value = '';
         marcacao.inicio.value = '';
+        marcacao.lista_espera.value = '0';
+        marcacao.querySelector('[data-aviso-espera]').classList.add('d-none');
         marcacao.especialidade_id.value = filtro.especialidade_id.value;
         marcacao.querySelector('[data-escolha]').textContent = '';
         marcacao.querySelector('button[type="submit"]').disabled = true;
     }
 
-    function escolher(botao, prof, iso) {
+    function escolher(botao, prof, iso, emEspera) {
         resultados.querySelectorAll('[data-vaga].active').forEach((b) => {
             b.classList.remove('active');
             b.setAttribute('aria-pressed', 'false');
@@ -36,9 +40,12 @@ if (pagina) {
 
         marcacao.profissional_id.value = prof.id;
         marcacao.inicio.value = iso;
+        marcacao.lista_espera.value = emEspera ? '1' : '0';
+        marcacao.querySelector('[data-aviso-espera]').classList.toggle('d-none', !emEspera);
         marcacao.especialidade_id.value = filtro.especialidade_id.value;
         marcacao.querySelector('[data-escolha]').textContent =
-            `${prof.nome} — ${formatarDia(iso)}, ${iso.slice(11, 16)}`;
+            `${prof.nome} — ${formatarDia(iso)}, ${iso.slice(11, 16)}`
+            + (emEspera ? ` (${pagina.dataset.textoEspera})` : '');
         marcacao.querySelector('button[type="submit"]').disabled = false;
     }
 
@@ -64,14 +71,23 @@ if (pagina) {
             const cartao = el('section', 'mb-4');
             cartao.append(el('h2', 'h5', `${prof.nome} (${prof.tipo})`));
 
+            // Só nas páginas de marcação: vagas ocupadas, onde se pode ficar em lista de espera.
+            const ocupadas = new Set(selecionavel ? (prof.ocupadas ?? []) : []);
+            const todas = [...prof.vagas, ...ocupadas].sort();
+
             if (prof.vagas.length === 0) {
                 cartao.append(el('p', 'text-muted', pagina.dataset.textoSemVagas));
+            }
+            if (todas.length === 0) {
                 resultados.append(cartao);
                 continue;
             }
+            if (ocupadas.size > 0) {
+                cartao.append(el('p', 'small text-muted mb-2', pagina.dataset.textoLegenda));
+            }
 
             const porDia = new Map();
-            for (const vaga of prof.vagas) {
+            for (const vaga of todas) {
                 const dia = vaga.slice(0, 10);
                 if (!porDia.has(dia)) porDia.set(dia, []);
                 porDia.get(dia).push(vaga);
@@ -84,11 +100,19 @@ if (pagina) {
                 for (const iso of vagas) {
                     const hora = iso.slice(11, 16);
                     if (selecionavel) {
-                        const b = el('button', 'btn btn-sm btn-outline-primary', hora);
+                        const emEspera = ocupadas.has(iso);
+                        const b = el('button', `btn btn-sm ${emEspera ? 'btn-outline-secondary' : 'btn-outline-primary'}`, hora);
                         b.type = 'button';
                         b.dataset.vaga = iso;
                         b.setAttribute('aria-pressed', 'false');
-                        b.addEventListener('click', () => escolher(b, prof, iso));
+                        if (emEspera) {
+                            // Tracejado além da cor, para a diferença não depender só da cor.
+                            b.style.borderStyle = 'dashed';
+                            b.dataset.espera = 'true';
+                            b.setAttribute('aria-label', `${hora} (${pagina.dataset.textoEspera})`);
+                            b.title = pagina.dataset.textoEspera;
+                        }
+                        b.addEventListener('click', () => escolher(b, prof, iso, emEspera));
                         lista.append(b);
                     } else {
                         lista.append(el('span', 'badge text-bg-light border', hora));

@@ -21,6 +21,8 @@ trait DadosDaMarcacao
             'profissional_id' => ['required', 'integer', 'exists:profissionais,id'],
             'inicio' => ['required', 'date_format:Y-m-d\TH:i'],
             'motivo_consulta' => ['nullable', 'string', 'max:1000'],
+            // Vem a 1 quando se escolheu uma vaga ocupada, para ficar em lista de espera (#75).
+            'lista_espera' => ['nullable', 'boolean'],
         ];
     }
 
@@ -43,5 +45,10 @@ trait DadosDaMarcacao
     public function motivo(): ?string
     {
         return $this->validated('motivo_consulta');
+    }
+
+    public function aceitaEspera(): bool
+    {
+        return $this->boolean('lista_espera');
     }
 }
