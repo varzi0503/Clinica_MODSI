@@ -35,6 +35,36 @@ class UserFactory extends Factory
         ];
     }
 
+    public function administrador(): static
+    {
+        return $this->comPerfil(Perfil::ADMINISTRADOR);
+    }
+
+    public function rececionista(): static
+    {
+        return $this->comPerfil(Perfil::RECECIONISTA);
+    }
+
+    /** Só a conta. Para a conta com a ficha, usar Profissional::factory(). */
+    public function profissional(): static
+    {
+        return $this->comPerfil(Perfil::PROFISSIONAL);
+    }
+
+    /** Só a conta. Para a conta com a ficha, usar Paciente::factory(). */
+    public function paciente(): static
+    {
+        return $this->comPerfil(Perfil::PACIENTE);
+    }
+
+    /** Usa o perfil fixo com este nome, criando-o se ainda não existir (os perfis têm nome único). */
+    private function comPerfil(string $nome): static
+    {
+        return $this->state(fn (): array => [
+            'perfil_id' => Perfil::firstOrCreate(['nome' => $nome])->id,
+        ]);
+    }
+
     /**
      * Indicate that the model's email address should be unverified.
      */
