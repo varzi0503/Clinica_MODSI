@@ -45,6 +45,10 @@
                             <a class="nav-link {{ request()->routeIs('rececao.especialidades.*') ? 'active' : '' }}"
                                href="{{ route('rececao.especialidades.index') }}">{{ __('Especialidades') }}</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('rececao.estatisticas.*') ? 'active' : '' }}"
+                               href="{{ route('rececao.estatisticas.index') }}">{{ __('Estatísticas') }}</a>
+                        </li>
                     @endif
                     @if (auth()->user()->temPerfil('paciente'))
                         <li class="nav-item">
