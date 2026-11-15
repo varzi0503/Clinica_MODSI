@@ -55,6 +55,10 @@
                             <a class="nav-link {{ request()->routeIs('paciente.pedidos.*') ? 'active' : '' }}"
                                href="{{ route('paciente.pedidos.create') }}">{{ __('Pedir consulta') }}</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('paciente.consultas.*') ? 'active' : '' }}"
+                               href="{{ route('paciente.consultas.index') }}">{{ __('As minhas consultas') }}</a>
+                        </li>
                     @endif
                     @if (auth()->user()->temPerfil('profissional'))
                         <li class="nav-item">
