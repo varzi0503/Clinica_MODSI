@@ -11,6 +11,7 @@ use App\Http\Controllers\Profissional\HorarioController;
 use App\Http\Controllers\Profissional\RegistoConsultaController;
 use App\Http\Controllers\Rececao\MarcacaoController;
 use App\Http\Controllers\Rececao\PedidoConsultaController;
+use App\Http\Controllers\Rececao\ProfissionalController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
@@ -61,6 +62,9 @@ Route::middleware(['auth', 'perfil:rececionista'])->prefix('rececao')->name('rec
     Route::post('/pedidos/{consulta}/rejeitar', [PedidoConsultaController::class, 'rejeitar'])->name('pedidos.rejeitar');
     Route::get('/consultas/marcar', [MarcacaoController::class, 'create'])->name('consultas.create');
     Route::post('/consultas', [MarcacaoController::class, 'store'])->name('consultas.store');
+    Route::get('/profissionais', [ProfissionalController::class, 'index'])->name('profissionais.index');
+    Route::get('/profissionais/novo', [ProfissionalController::class, 'create'])->name('profissionais.create');
+    Route::post('/profissionais', [ProfissionalController::class, 'store'])->name('profissionais.store');
 });
 
 // POST (e não GET) porque altera o estado da sessão; o formulário leva token CSRF.
