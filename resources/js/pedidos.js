@@ -26,6 +26,13 @@ document.addEventListener('submit', async (evento) => {
         document.querySelectorAll(`tr[data-pedido="${id}"]`).forEach((tr) => tr.remove());
         clinica.mostrarAlerta(r.ok ? 'success' : 'warning', r.mensagem);
 
+        if (!document.querySelector('tr[data-pedido]') && pagina?.dataset.haMais === 'true') {
+            // A página ficou vazia mas há mais pedidos noutras páginas: recarrega para os mostrar.
+            window.location.assign(window.location.pathname);
+
+            return;
+        }
+
         if (!document.querySelector('tr[data-pedido]')) {
             pagina?.querySelector('.table-responsive')?.remove();
             pagina?.querySelector('[data-vazio]')?.classList.remove('d-none');

@@ -104,6 +104,20 @@ class PedidosRececaoTest extends TestCase
         $this->assertSame(2, $consulta->historico()->count());
     }
 
+    public function test_lista_de_pedidos_e_paginada_do_mais_antigo_para_o_mais_recente(): void
+    {
+        Consulta::factory()->count(23)->pedida()->create();
+
+        $this->actingAs($this->rececionista)->get(route('rececao.pedidos.index'))
+            ->assertOk()
+            ->assertViewHas('pedidos', fn ($pedidos) => $pedidos->count() === 20 && $pedidos->total() === 23)
+            ->assertSee('page=2', false)
+            ->assertSee('data-ha-mais="true"', false);
+
+        $this->actingAs($this->rececionista)->get(route('rececao.pedidos.index', ['page' => 2]))
+            ->assertViewHas('pedidos', fn ($pedidos) => $pedidos->count() === 3);
+    }
+
     public function test_outros_perfis_nao_acedem(): void
     {
         $consulta = $this->pedido();

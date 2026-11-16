@@ -30,13 +30,20 @@ class EspecialidadeFactory extends Factory
         ];
     }
 
-    /** Percorre a lista e, quando ela acaba, repete-a com um número ("Cardiologia 2"). */
+    /**
+     * Percorre a lista e, quando ela acaba, repete-a com um número ("Cardiologia 2").
+     * Salta os nomes que já existem na base de dados: um seeder ou um teste pode ter criado
+     * "Cardiologia" à mão antes de pedir à factory mais especialidades.
+     */
     private static function proximoNome(): string
     {
-        $indice = self::$geradas++;
-        $volta = intdiv($indice, count(self::NOMES));
-        $nome = self::NOMES[$indice % count(self::NOMES)];
+        do {
+            $indice = self::$geradas++;
+            $volta = intdiv($indice, count(self::NOMES));
+            $nome = self::NOMES[$indice % count(self::NOMES)];
+            $nome = $volta === 0 ? $nome : $nome.' '.($volta + 1);
+        } while (Especialidade::where('nome', $nome)->exists());
 
-        return $volta === 0 ? $nome : $nome.' '.($volta + 1);
+        return $nome;
     }
 }
