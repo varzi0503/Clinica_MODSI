@@ -1,4 +1,5 @@
 {
+    "A consulta atual é cancelada com o motivo \"Reagendada\" e a vaga antiga fica livre.": "The current appointment is cancelled with the reason \"Reagendada\" and the old slot becomes free.",
     "A conta está desativada. Contacte a receção.": "This account is disabled. Contact the front desk.",
     "A partir de": "From",
     "A sua conta não tem ficha de paciente associada. Contacte a receção.": "Your account has no patient record linked. Please contact the front desk.",
@@ -34,6 +35,7 @@
     "Consulta cancelada.": "Appointment cancelled.",
     "Consulta confirmada.": "Appointment confirmed.",
     "Consulta marcada para :data com :profissional.": "Appointment booked for :data with :profissional.",
+    "Consulta reagendada para :data com :profissional.": "Appointment rescheduled to :data with :profissional.",
     "Consulta registada como realizada.": "Appointment recorded as completed.",
     "Consultas": "Appointments",
     "Consultas no total": "Total appointments",
@@ -105,6 +107,7 @@
     "Já tem uma consulta a essa hora, ou a vaga acabou de ser ocupada.": "You already have an appointment at that time, or the slot has just been taken.",
     "Limpar": "Clear",
     "Lista de espera": "Waiting list",
+    "Marcada para :data com :profissional.": "Booked for :data with :profissional.",
     "Marcar consulta": "Book appointment",
     "Marque e acompanhe as suas consultas online.": "Book and track your appointments online.",
     "Motivo": "Reason",
@@ -127,6 +130,7 @@
     "nº utente": "patient no.",
     "Não foi possível criar a conta: o email ou o nº de utente acabou de ser registado.": "Could not create the account: the email or patient number has just been registered.",
     "Não foi possível criar o profissional: o email ou o nº de cédula acabou de ser registado.": "Could not create the professional: the email or licence number has just been registered.",
+    "Não há consultas a partir desta data.": "There are no appointments from this date.",
     "Não há consultas neste período.": "There are no appointments in this period.",
     "Não há pedidos pendentes.": "There are no pending requests.",
     "Não pode alterar o seu próprio perfil.": "You cannot change your own role.",
@@ -170,6 +174,8 @@
     "Projeto académico MODSI, ISEP": "MODSI academic project, ISEP",
     "Quarta-feira": "Wednesday",
     "Quinta-feira": "Thursday",
+    "Reagendar": "Reschedule",
+    "Reagendar consulta": "Reschedule appointment",
     "Realizada": "Completed",
     "Rececionista": "Receptionist",
     "Rejeitada": "Rejected",
@@ -187,6 +193,7 @@
     "Sábado": "Saturday",
     "Só pode cancelar consultas confirmadas que ainda não começaram.": "You can only cancel confirmed appointments that have not started yet.",
     "Só pode registar a consulta depois da hora de início.": "You can only record the appointment after its start time.",
+    "Só se reagendam pedidos pendentes e consultas confirmadas que ainda não começaram.": "Only pending requests and confirmed appointments that have not started can be rescheduled.",
     "Só é possível registar consultas confirmadas.": "Only confirmed appointments can be recorded.",
     "Telefone": "Phone",
     "Tem profissionais associados.": "It has associated professionals.",
@@ -198,5 +205,6 @@
     "Utilizadores": "Users",
     "Vaga escolhida": "Selected slot",
     "Vista": "View",
-    "você": "you"
+    "você": "you",
+    "Voltar": "Back"
 }

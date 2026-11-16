@@ -27,6 +27,12 @@ class ConsultaPolicy
         return $user->temPerfil(Perfil::RECECIONISTA);
     }
 
+    /** Só a receção reagenda (D31). */
+    public function reagendar(User $user, Consulta $consulta): bool
+    {
+        return $user->temPerfil(Perfil::RECECIONISTA);
+    }
+
     /** Só o profissional da consulta a regista como realizada ou falta (D25). */
     public function registar(User $user, Consulta $consulta): bool
     {
