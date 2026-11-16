@@ -19,7 +19,17 @@
                     <a class="nav-link {{ request()->routeIs('disponibilidade.*') ? 'active' : '' }}"
                        href="{{ route('disponibilidade.index') }}">{{ __('Disponibilidade') }}</a>
                 </li>
-                {{-- Especialidades e Médicos: entram com as páginas públicas (UC01–UC03) --}}
+                {{-- Páginas públicas (UC02, UC03). Quem trabalha na clínica chega-lhes pela página inicial, para o menu não crescer. --}}
+                @if (! auth()->check() || auth()->user()->temPerfil('paciente'))
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('especialidades.index') ? 'active' : '' }}"
+                           href="{{ route('especialidades.index') }}">{{ __('Especialidades') }}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('profissionais.index') ? 'active' : '' }}"
+                           href="{{ route('profissionais.index') }}">{{ __('Profissionais') }}</a>
+                    </li>
+                @endif
 
                 @auth
                     @if (auth()->user()->temPerfil('administrador'))
