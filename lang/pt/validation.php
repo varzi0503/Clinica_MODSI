@@ -164,6 +164,8 @@ return [
         'motivo_consulta'          => 'motivo da consulta',
         'num_utente'               => 'nº de utente',
         'num_cedula'               => 'nº de cédula',
+        'email_contacto'           => 'email de contacto',
+        'paciente_id'              => 'paciente',
         'de'                       => 'de',
         'ate'                      => 'até',
         'descricao'                => 'descrição',
