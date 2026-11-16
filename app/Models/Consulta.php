@@ -167,6 +167,18 @@ class Consulta extends Model
         }
 
         DB::transaction(function () use ($novo, $por, $motivo) {
+            // Relê o estado com a linha trancada: se dois pedidos tentarem mudar a mesma consulta ao
+            // mesmo tempo (duas rececionistas, um duplo clique), o segundo espera pelo primeiro e
+            // vê o estado já mudado, em vez de repetir a transição (issue #79).
+            $atual = self::query()->whereKey($this->getKey())->lockForUpdate()->value('estado');
+            $atual = $atual instanceof EstadoConsulta ? $atual : EstadoConsulta::from($atual);
+
+            if (! $atual->podeTransitarPara($novo)) {
+                $this->estado = $atual;
+
+                throw new TransicaoEstadoInvalida($atual, $novo);
+            }
+
             $this->estado = $novo;
             $this->data_estado = Carbon::now();
             $this->save();
