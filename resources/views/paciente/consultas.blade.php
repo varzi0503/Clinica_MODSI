@@ -39,7 +39,7 @@
                 <tbody>
                     @foreach ($consultas as $consulta)
                         <tr>
-                            <td class="text-nowrap">{{ $consulta->inicio->format('d/m/Y H:i') }}</td>
+                            <td class="text-nowrap"><a href="{{ route('paciente.consultas.show', $consulta) }}" title="{{ __('Abrir a consulta') }}">{{ $consulta->inicio->format('d/m/Y H:i') }}</a></td>
                             <td>{{ $consulta->profissional->user->name }}</td>
                             <td>{{ $consulta->especialidade->nome }}</td>
                             <td>

@@ -80,6 +80,30 @@ class Consulta extends Model
         return $this->hasMany(HistoricoEstado::class)->orderBy('data_hora')->orderBy('id');
     }
 
+    /** @return HasMany<Observacao, $this> */
+    public function observacoes(): HasMany
+    {
+        return $this->hasMany(Observacao::class)->latest()->latest('id');
+    }
+
+    /** @return HasMany<Documento, $this> */
+    public function documentos(): HasMany
+    {
+        return $this->hasMany(Documento::class)->latest()->latest('id');
+    }
+
+    /** Escrevem-se observações em consultas confirmadas ou realizadas (D37). */
+    public function aceitaObservacoes(): bool
+    {
+        return in_array($this->estado, [EstadoConsulta::Confirmada, EstadoConsulta::Realizada], true);
+    }
+
+    /** Carregam-se documentos desde o pedido até depois da consulta realizada (D37). */
+    public function aceitaDocumentos(): bool
+    {
+        return in_array($this->estado, [EstadoConsulta::Pedida, EstadoConsulta::Confirmada, EstadoConsulta::Realizada], true);
+    }
+
     /**
      * O motivo dado quando a consulta foi rejeitada ou cancelada (está no último registo do histórico).
      * Nulo nos outros estados e quando não foi indicado motivo.
