@@ -42,20 +42,23 @@
                                href="{{ route('rececao.consultas.index') }}">{{ __('Consultas') }}</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('rececao.pacientes.*') ? 'active' : '' }}"
-                               href="{{ route('rececao.pacientes.index') }}">{{ __('Pacientes') }}</a>
+                            <a class="nav-link {{ request()->routeIs('rececao.agenda.*') ? 'active' : '' }}"
+                               href="{{ route('rececao.agenda.index') }}">{{ __('Agenda geral') }}</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('rececao.profissionais.*') ? 'active' : '' }}"
-                               href="{{ route('rececao.profissionais.index') }}">{{ __('Profissionais') }}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('rececao.especialidades.*') ? 'active' : '' }}"
-                               href="{{ route('rececao.especialidades.index') }}">{{ __('Especialidades') }}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('rececao.estatisticas.*') ? 'active' : '' }}"
-                               href="{{ route('rececao.estatisticas.index') }}">{{ __('Estatísticas') }}</a>
+                        @php $emGestao = request()->routeIs('rececao.pacientes.*', 'rececao.profissionais.*', 'rececao.especialidades.*', 'rececao.estatisticas.*'); @endphp
+                        <li class="nav-item dropdown">
+                            <button class="nav-link dropdown-toggle {{ $emGestao ? 'active' : '' }}" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">{{ __('Gestão') }}</button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item {{ request()->routeIs('rececao.pacientes.*') ? 'active' : '' }}"
+                                       href="{{ route('rececao.pacientes.index') }}">{{ __('Pacientes') }}</a></li>
+                                <li><a class="dropdown-item {{ request()->routeIs('rececao.profissionais.*') ? 'active' : '' }}"
+                                       href="{{ route('rececao.profissionais.index') }}">{{ __('Profissionais') }}</a></li>
+                                <li><a class="dropdown-item {{ request()->routeIs('rececao.especialidades.*') ? 'active' : '' }}"
+                                       href="{{ route('rececao.especialidades.index') }}">{{ __('Especialidades') }}</a></li>
+                                <li><a class="dropdown-item {{ request()->routeIs('rececao.estatisticas.*') ? 'active' : '' }}"
+                                       href="{{ route('rececao.estatisticas.index') }}">{{ __('Estatísticas') }}</a></li>
+                            </ul>
                         </li>
                     @endif
                     @if (auth()->user()->temPerfil('paciente'))
