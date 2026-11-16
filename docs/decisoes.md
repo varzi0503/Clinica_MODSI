@@ -45,6 +45,7 @@ A partir de 3 de novembro de 2026, as decisões técnicas são tomadas pelo Diog
 | D34 | Cancelamento pelo paciente e pelo profissional: prazos e motivo | Âmbito |
 | D35 | Registo com nº de utente já existente e associação da conta à ficha | Segurança |
 | D36 | Notificações: quem é avisado de quê, e por onde | Âmbito |
+| D37 | Observações e documentos de uma consulta: quem escreve e quem vê | Segurança |
 
 ---
 
@@ -543,3 +544,25 @@ Os formulários continuam a funcionar sem JavaScript.
 **Alternativa rejeitada:** só email. Na demonstração não se via nada, e um paciente sem acesso ao email ficava sem saber.
 
 **Consequência:** tabela `notifications` (a do Laravel). A regra de quem recebe o quê está num único sítio, o serviço `Avisos`, chamado pelo serviço `Marcacoes`.
+
+---
+
+## D37 — Observações e documentos de uma consulta: quem escreve e quem vê
+
+**Decisão:**
+- **Observações:** são notas clínicas do profissional da consulta. Só ele as escreve e só ele as vê; o paciente, a receção e os outros profissionais não. Escrevem-se em consultas confirmadas ou realizadas e não se editam nem apagam.
+- **Documentos:** o paciente junta análises, exames ou outros documentos úteis para a consulta; o profissional junta, por exemplo, uma receita ou um relatório. Veem-nos e descarregam-nos os dois, e mais ninguém. Só quem carregou um documento o pode apagar.
+- **Quando:** juntam-se documentos desde o pedido até depois da consulta realizada. Não se juntam a pedidos em espera nem a consultas rejeitadas ou canceladas.
+- **Ficheiros aceites:** PDF, JPG e PNG, até 5 MB.
+- **Onde ficam:** no disco privado da aplicação, com um nome gerado. O nome original fica só na base de dados. O ficheiro só sai por um controlador que verifica primeiro a policy.
+
+**Porquê:**
+- O RNF03 pede que os dados de saúde só sejam vistos por quem está autorizado: o paciente vê os seus, o profissional os dos seus pacientes. A receção trata de marcações e não precisa de ver exames nem notas clínicas.
+- As notas do profissional são instrumento de trabalho dele; mostrá-las ao paciente mudava o que ele se sente à vontade para escrever.
+- O paciente poder juntar documentos antes da consulta poupa tempo na consulta e evita papel.
+- Um ficheiro numa pasta pública ficava acessível a quem adivinhasse o endereço. No disco privado, o acesso passa sempre pela verificação de posse.
+- Limitar os tipos e gerar o nome no disco evita que alguém carregue um ficheiro executável ou escolha onde ele é gravado.
+
+**Alternativa rejeitada:** observações visíveis ao paciente, e documentos visíveis à receção. A primeira foi posta de parte pela razão acima; a segunda violava o RNF03.
+
+**Consequência:** tabelas `observacoes` e `documentos`. O paciente e o profissional passam a ter uma página de detalhe de cada consulta. O PHP tem de aceitar ficheiros de 5 MB (`upload_max_filesize`), o que está explicado no README.

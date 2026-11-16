@@ -69,6 +69,8 @@ npm run build
 
 > **A `APP_KEY` é de cada máquina.** O `.env.example` traz a chave vazia. Se o teu `.env` foi copiado antes de 15 de novembro, tem a chave que esteve publicada no repositório: corre `php artisan key:generate` outra vez.
 
+> **Documentos até 5 MB.** O PHP vem configurado para aceitar ficheiros até 2 MB. Para carregar documentos maiores nas consultas, sobe `upload_max_filesize` e `post_max_size` no `php.ini` para pelo menos `6M` (no Herd: abrir o `php.ini` da versão em uso a partir do menu do Herd e reiniciar os serviços).
+
 ### 3. Tabelas e contas iniciais
 
 ```powershell
