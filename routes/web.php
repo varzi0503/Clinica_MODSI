@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\RegistoController;
 use App\Http\Controllers\DadosPessoaisController;
 use App\Http\Controllers\DisponibilidadeController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\NotificacaoController;
 use App\Http\Controllers\Paciente\ConsultaController as ConsultaDoPacienteController;
 use App\Http\Controllers\Paciente\PedidoController;
 use App\Http\Controllers\Profissional\AgendaController;
@@ -41,6 +42,11 @@ Route::middleware('guest')->group(function () {
 
 // POST (e não GET) porque termina a sessão; o formulário leva token CSRF.
 Route::post('/sair', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+
+// Notificações da própria conta (issue #74).
+Route::get('/notificacoes', [NotificacaoController::class, 'index'])
+    ->middleware(['auth', 'perfil:'.implode(',', Perfil::NOMES)])
+    ->name('notificacoes.index');
 
 // UC10 — qualquer conta autenticada; cada uma só vê e altera os seus próprios dados.
 // O middleware perfil: com todos os perfis serve para expulsar contas desativadas a meio da sessão.

@@ -9,6 +9,7 @@ use App\Models\Horario;
 use App\Models\Paciente;
 use App\Models\Profissional;
 use App\Models\User;
+use App\Notifications\ConsultaAtualizada;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +27,7 @@ class Marcacoes
     /** Antecedência mínima, em horas, para o paciente cancelar uma consulta que ocupa a vaga (D34). */
     public const HORAS_ANTECEDENCIA_PACIENTE = 24;
 
-    public function __construct(private readonly Disponibilidade $disponibilidade) {}
+    public function __construct(private readonly Disponibilidade $disponibilidade, private readonly Avisos $avisos) {}
 
     /**
      * O paciente pede uma consulta: fica "pedida" até a receção a confirmar (D24).
@@ -70,6 +71,7 @@ class Marcacoes
             return DB::transaction(function () use ($paciente, $profissional, $especialidadeId, $inicio, $motivo, $rececionista) {
                 $consulta = $this->registar($paciente, $profissional, $especialidadeId, $inicio, $motivo, $rececionista);
                 $consulta->mudarEstado(EstadoConsulta::Confirmada, $rececionista);
+                $this->avisos->aoPaciente($consulta, ConsultaAtualizada::CONFIRMADA, $rececionista);
 
                 return $consulta;
             });
@@ -83,6 +85,19 @@ class Marcacoes
     }
 
     /**
+     * A receção confirma um pedido pendente e o paciente é avisado (D36).
+     *
+     * @throws TransicaoEstadoInvalida se o pedido já não estiver pendente
+     */
+    public function confirmar(Consulta $consulta, User $por): void
+    {
+        DB::transaction(function () use ($consulta, $por): void {
+            $consulta->mudarEstado(EstadoConsulta::Confirmada, $por);
+            $this->avisos->aoPaciente($consulta, ConsultaAtualizada::CONFIRMADA, $por);
+        });
+    }
+
+    /**
      * A receção rejeita um pedido, com motivo, e a lista de espera é promovida na mesma transação (D32).
      *
      * @throws TransicaoEstadoInvalida se o pedido já não estiver pendente
@@ -91,6 +106,7 @@ class Marcacoes
     {
         DB::transaction(function () use ($consulta, $por, $motivo): void {
             $consulta->mudarEstado(EstadoConsulta::Rejeitada, $por, $motivo);
+            $this->avisos->aoPaciente($consulta, ConsultaAtualizada::REJEITADA, $por, $motivo);
 
             $this->promoverListaEspera($consulta->profissional, $consulta->inicio->toImmutable());
         });
@@ -132,7 +148,11 @@ class Marcacoes
 
                 if ($estavaConfirmada) {
                     $nova->mudarEstado(EstadoConsulta::Confirmada, $por);
+                    // O profissional que perde a consulta da agenda é avisado; o paciente recebe a data nova.
+                    $this->avisos->aoProfissional($antiga, ConsultaAtualizada::REAGENDADA, $por);
                 }
+
+                $this->avisos->aoPaciente($nova, ConsultaAtualizada::REAGENDADA, $por);
 
                 $this->promoverListaEspera($antiga->profissional, $antiga->inicio->toImmutable());
 
@@ -163,8 +183,15 @@ class Marcacoes
     {
         DB::transaction(function () use ($consulta, $por, $motivo): void {
             $ocupavaVaga = $consulta->estado->ocupaVaga();
+            $estavaConfirmada = $consulta->estado === EstadoConsulta::Confirmada;
 
             $consulta->mudarEstado(EstadoConsulta::Cancelada, $por, $motivo);
+
+            // Cada um é avisado do que outra pessoa fez; quem cancela não recebe o seu próprio aviso (D36).
+            $this->avisos->aoPaciente($consulta, ConsultaAtualizada::CANCELADA, $por, $motivo);
+            if ($estavaConfirmada) {
+                $this->avisos->aoProfissional($consulta, ConsultaAtualizada::CANCELADA, $por, $motivo);
+            }
 
             if ($ocupavaVaga) {
                 $this->promoverListaEspera($consulta->profissional, $consulta->inicio->toImmutable());
@@ -203,7 +230,7 @@ class Marcacoes
     {
         $expirados = Consulta::where('estado', EstadoConsulta::EmEspera)->where('inicio', '<', now())->get();
 
-        $expirados->each(fn (Consulta $consulta) => $consulta->mudarEstado(EstadoConsulta::Cancelada, null, 'Vaga expirada'));
+        $expirados->each(fn (Consulta $consulta) => $this->cancelar($consulta, null, 'Vaga expirada'));
 
         return $expirados->count();
     }
@@ -221,7 +248,7 @@ class Marcacoes
             ->filter(fn (Consulta $consulta) => $consulta->inicio->isoWeekday() === $horario->dia_semana
                 && $consulta->inicio->format('H:i:s') >= $horario->hora_inicio
                 && $consulta->inicio->format('H:i:s') < $horario->hora_fim)
-            ->each(fn (Consulta $consulta) => $consulta->mudarEstado(EstadoConsulta::Cancelada, null, 'Horário removido'));
+            ->each(fn (Consulta $consulta) => $this->cancelar($consulta, null, 'Horário removido'));
     }
 
     /** @throws ValidationException */
@@ -301,6 +328,7 @@ class Marcacoes
         foreach ($emEspera as $pedido) {
             try {
                 DB::transaction(fn () => $pedido->mudarEstado(EstadoConsulta::Pedida, null));
+                $this->avisos->aoPaciente($pedido, ConsultaAtualizada::PROMOVIDA, null);
 
                 return;
             } catch (UniqueConstraintViolationException) {

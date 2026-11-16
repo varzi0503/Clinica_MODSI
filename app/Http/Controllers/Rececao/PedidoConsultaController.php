@@ -28,11 +28,11 @@ class PedidoConsultaController extends Controller
         return view('rececao.pedidos', ['pedidos' => $pedidos]);
     }
 
-    public function confirmar(Request $request, Consulta $consulta): RedirectResponse|JsonResponse
+    public function confirmar(Request $request, Consulta $consulta, Marcacoes $marcacoes): RedirectResponse|JsonResponse
     {
         // Se outro utilizador tratou o pedido entretanto (duplo clique, duas rececionistas),
-        // mudarEstado() lança TransicaoEstadoInvalida, que é respondida em bootstrap/app.php.
-        $consulta->mudarEstado(EstadoConsulta::Confirmada, $request->user());
+        // o serviço lança TransicaoEstadoInvalida, que é respondida em bootstrap/app.php.
+        $marcacoes->confirmar($consulta, $request->user());
 
         return $this->concluir($request, __('Consulta confirmada.'));
     }
