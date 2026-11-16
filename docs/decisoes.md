@@ -43,6 +43,7 @@ A partir de 3 de novembro de 2026, as decisões técnicas são tomadas pelo Diog
 | D32 | Promoção da lista de espera sempre que uma vaga se liberta | Âmbito |
 | D33 | Pedidos em espera de vagas que já passaram | Âmbito |
 | D34 | Cancelamento pelo paciente e pelo profissional: prazos e motivo | Âmbito |
+| D35 | Registo com nº de utente já existente e associação da conta à ficha | Segurança |
 
 ---
 
@@ -499,3 +500,22 @@ Os formulários continuam a funcionar sem JavaScript.
 **Alternativa rejeitada:** deixar o paciente cancelar até à hora de início. Era mais simples, mas permitia libertar a vaga quando já ninguém a pode usar.
 
 **Consequência:** o paciente passa a ter a página "As minhas consultas", com as consultas futuras; o histórico completo é da issue #55. O cenário 3.4.4 do relatório tem de referir o prazo das 24 horas.
+
+---
+
+## D35 — Registo com nº de utente já existente e associação da conta à ficha
+
+**Decisão:**
+- Quando alguém se regista com um nº de utente que já pertence a uma ficha de balcão (sem conta), a conta é criada **sem ficha** e a pessoa é avisada para se dirigir à receção. Antes, o registo era recusado e nem a conta ficava criada.
+- Se o nº de utente pertencer a uma ficha que já tem conta, o registo continua a ser recusado.
+- A receção associa a conta à ficha na edição da ficha, indicando o email da conta. A conta tem de ser de paciente e não pode ter já outra ficha. Na associação, o nome da ficha passa a ser também o nome da conta (D10).
+- Uma conta de paciente sem ficha entra na aplicação, mas não pede nem vê consultas: é encaminhada para a receção.
+
+**Porquê:**
+- Continua a valer a D11: o registo nunca se apropria de uma ficha existente, porque quem soubesse o nº de utente de outra pessoa ficava com o histórico dela. A identidade confirma-se ao balcão.
+- Com o registo recusado, a receção não tinha conta nenhuma para associar, e a pessoa ficava sem forma de usar a aplicação com a ficha que já tinha.
+- O email da conta é o que a pessoa sabe dizer ao balcão e identifica a conta sem ambiguidade (é único).
+
+**Alternativa rejeitada:** a receção criar ela própria a conta do paciente, com uma palavra-passe inicial, como faz com os profissionais (D26). Obrigava a receção a lidar com palavras-passe de pacientes; pode ser revista com as notificações (#74), se houver convites por email.
+
+**Consequência:** esta entrada completa a D11 e não a substitui. O teste do registo que esperava a recusa passou a esperar a conta sem ficha.

@@ -21,7 +21,8 @@ class MarcacaoController extends Controller
     public function create(): View
     {
         return view('rececao.marcar', [
-            'pacientes' => Paciente::orderBy('nome')->get(),
+            // Depois de um erro de validação, a pesquisa volta com o paciente que estava escolhido.
+            'pacienteEscolhido' => Paciente::find(old('paciente_id')),
             'especialidades' => Especialidade::has('profissionais')->orderBy('nome')->get(),
         ]);
     }

@@ -140,12 +140,13 @@ class MarcacaoRececaoTest extends TestCase
         $this->actingAs($this->medica->user)->post(route('rececao.consultas.store'), [])->assertForbidden();
     }
 
-    public function test_pagina_lista_pacientes_e_especialidades(): void
+    public function test_pagina_tem_as_especialidades_e_a_pesquisa_de_pacientes(): void
     {
+        // Os pacientes deixaram de vir todos na página (#58): escolhem-se por pesquisa.
         $this->actingAs($this->rececionista)->get(route('rececao.consultas.create'))
             ->assertOk()
-            ->assertSee('Augusta Teste')
-            ->assertSee('123456789')
-            ->assertSee('Cardiologia');
+            ->assertSee('Cardiologia')
+            ->assertSee(route('rececao.pacientes.pesquisa'))
+            ->assertDontSee('Augusta Teste');
     }
 }
