@@ -51,19 +51,21 @@
                 <div class="alert alert-danger py-2">{{ $message }}</div>
             @enderror
 
-            <div class="mb-3">
-                <label for="paciente_id" class="form-label">{{ __('Paciente') }}</label>
-                <select id="paciente_id" name="paciente_id" class="form-select @error('paciente_id') is-invalid @enderror" required>
-                    <option value="">{{ __('Escolha o paciente') }}</option>
-                    @foreach ($pacientes as $paciente)
-                        <option value="{{ $paciente->id }}" @selected(old('paciente_id') == $paciente->id)>
-                            {{ $paciente->nome }} ({{ __('nº utente') }} {{ $paciente->num_utente }})
-                        </option>
-                    @endforeach
-                </select>
+            <div class="mb-3" data-pesquisa-paciente data-url="{{ route('rececao.pacientes.pesquisa') }}"
+                 data-texto-nenhum="{{ __('Nenhum paciente encontrado.') }}" data-texto-utente="{{ __('nº utente') }}">
+                <label for="pesquisa-paciente" class="form-label">{{ __('Paciente') }}</label>
+                <input type="hidden" name="paciente_id" value="{{ $pacienteEscolhido?->id }}">
+                <input type="search" id="pesquisa-paciente" class="form-control @error('paciente_id') is-invalid @enderror" autocomplete="off"
+                       placeholder="{{ __('Nome ou nº de utente') }}" aria-describedby="paciente-escolhido">
                 @error('paciente_id')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
+                <div class="list-group mt-1" data-resultados-paciente></div>
+                <div class="form-text" id="paciente-escolhido">
+                    {{ __('Paciente escolhido') }}:
+                    <strong data-paciente-escolhido>@if ($pacienteEscolhido){{ $pacienteEscolhido->nome }} ({{ __('nº utente') }} {{ $pacienteEscolhido->num_utente }})@else—@endif</strong>
+                    · <a href="{{ route('rececao.pacientes.create') }}">{{ __('Nova ficha') }}</a>
+                </div>
             </div>
 
             <div class="mb-3">

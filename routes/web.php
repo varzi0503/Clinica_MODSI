@@ -15,6 +15,7 @@ use App\Http\Controllers\Rececao\ConsultaController as ConsultaDaRececaoControll
 use App\Http\Controllers\Rececao\EspecialidadeController;
 use App\Http\Controllers\Rececao\EstatisticasController;
 use App\Http\Controllers\Rececao\MarcacaoController;
+use App\Http\Controllers\Rececao\PacienteController;
 use App\Http\Controllers\Rececao\PedidoConsultaController;
 use App\Http\Controllers\Rececao\ProfissionalController;
 use Illuminate\Support\Facades\Route;
@@ -74,6 +75,13 @@ Route::middleware(['auth', 'perfil:rececionista'])->prefix('rececao')->name('rec
     Route::post('/consultas/{consulta}/cancelar', [ConsultaDaRececaoController::class, 'cancelar'])->can('cancelar', 'consulta')->name('consultas.cancelar');
     Route::get('/consultas/{consulta}/reagendar', [ConsultaDaRececaoController::class, 'reagendamento'])->can('reagendar', 'consulta')->name('consultas.reagendamento');
     Route::post('/consultas/{consulta}/reagendar', [ConsultaDaRececaoController::class, 'reagendar'])->can('reagendar', 'consulta')->name('consultas.reagendar');
+    Route::get('/pacientes', [PacienteController::class, 'index'])->name('pacientes.index');
+    Route::get('/pacientes/pesquisa', [PacienteController::class, 'pesquisa'])->name('pacientes.pesquisa');
+    Route::get('/pacientes/novo', [PacienteController::class, 'create'])->name('pacientes.create');
+    Route::post('/pacientes', [PacienteController::class, 'store'])->name('pacientes.store');
+    Route::get('/pacientes/{paciente}/editar', [PacienteController::class, 'edit'])->name('pacientes.edit');
+    Route::put('/pacientes/{paciente}', [PacienteController::class, 'update'])->name('pacientes.update');
+    Route::post('/pacientes/{paciente}/conta', [PacienteController::class, 'associarConta'])->name('pacientes.conta');
     Route::get('/profissionais', [ProfissionalController::class, 'index'])->name('profissionais.index');
     Route::get('/profissionais/novo', [ProfissionalController::class, 'create'])->name('profissionais.create');
     Route::post('/profissionais', [ProfissionalController::class, 'store'])->name('profissionais.store');

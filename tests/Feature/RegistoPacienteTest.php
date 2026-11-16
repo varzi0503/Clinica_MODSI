@@ -44,11 +44,25 @@ class RegistoPacienteTest extends TestCase
     {
         $ficha = Paciente::create(['nome' => 'Ficha de balcão', 'num_utente' => '123456789']);
 
+        // D35: a conta é criada, mas sem ficha; é a receção que as associa.
+        $this->registar()->assertRedirect(route('home'))->assertSessionHas('warning');
+
+        $user = User::where('email', 'maria@teste.pt')->sole();
+        $this->assertAuthenticatedAs($user);
+        $this->assertNull($user->paciente);
+        $this->assertNull($ficha->fresh()->user_id);
+        $this->assertSame(1, Paciente::count());
+    }
+
+    public function test_numero_de_utente_de_uma_ficha_que_ja_tem_conta_e_recusado(): void
+    {
+        Paciente::factory()->create(['num_utente' => '123456789']);
+        $contas = User::count();
+
         $this->registar()->assertSessionHasErrors('num_utente');
 
         $this->assertGuest();
-        $this->assertSame(0, User::count());
-        $this->assertNull($ficha->fresh()->user_id);
+        $this->assertSame($contas, User::count());
     }
 
     public function test_email_repetido_e_recusado(): void

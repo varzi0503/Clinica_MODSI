@@ -42,6 +42,10 @@
                                href="{{ route('rececao.consultas.index') }}">{{ __('Consultas') }}</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('rececao.pacientes.*') ? 'active' : '' }}"
+                               href="{{ route('rececao.pacientes.index') }}">{{ __('Pacientes') }}</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('rececao.profissionais.*') ? 'active' : '' }}"
                                href="{{ route('rececao.profissionais.index') }}">{{ __('Profissionais') }}</a>
                         </li>
