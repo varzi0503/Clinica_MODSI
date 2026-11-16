@@ -94,6 +94,16 @@
                 @endguest
 
                 @auth
+                    @php $porLer = auth()->user()->unreadNotifications()->count(); @endphp
+                    <li class="nav-item d-flex align-items-center">
+                        <a class="nav-link {{ request()->routeIs('notificacoes.*') ? 'active' : '' }}" href="{{ route('notificacoes.index') }}">
+                            {{ __('Notificações') }}
+                            @if ($porLer > 0)
+                                <span class="badge rounded-pill text-bg-danger" data-por-ler>{{ $porLer }}</span>
+                                <span class="visually-hidden">{{ __('por ler') }}</span>
+                            @endif
+                        </a>
+                    </li>
                     <li class="nav-item d-flex align-items-center">
                         <a class="nav-link {{ request()->routeIs('dados-pessoais.*') ? 'active' : '' }}"
                            href="{{ route('dados-pessoais.edit') }}" title="{{ __('Dados Pessoais') }}">{{ auth()->user()->name }}</a>

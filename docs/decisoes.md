@@ -44,6 +44,7 @@ A partir de 3 de novembro de 2026, as decisões técnicas são tomadas pelo Diog
 | D33 | Pedidos em espera de vagas que já passaram | Âmbito |
 | D34 | Cancelamento pelo paciente e pelo profissional: prazos e motivo | Âmbito |
 | D35 | Registo com nº de utente já existente e associação da conta à ficha | Segurança |
+| D36 | Notificações: quem é avisado de quê, e por onde | Âmbito |
 
 ---
 
@@ -519,3 +520,26 @@ Os formulários continuam a funcionar sem JavaScript.
 **Alternativa rejeitada:** a receção criar ela própria a conta do paciente, com uma palavra-passe inicial, como faz com os profissionais (D26). Obrigava a receção a lidar com palavras-passe de pacientes; pode ser revista com as notificações (#74), se houver convites por email.
 
 **Consequência:** esta entrada completa a D11 e não a substitui. O teste do registo que esperava a recusa passou a esperar a conta sem ficha.
+
+---
+
+## D36 — Notificações: quem é avisado de quê, e por onde
+
+**Decisão:**
+- **O paciente é avisado** quando o seu pedido é confirmado ou rejeitado, quando a consulta é cancelada ou reagendada por outra pessoa, e quando o pedido sai da lista de espera (D32). Marcar pela receção também avisa, porque a consulta nasce confirmada.
+- **O profissional é avisado** quando uma consulta confirmada sua é cancelada ou reagendada por outra pessoa.
+- **Ninguém é avisado do que ele próprio fez.** A receção não recebe avisos: trabalha a partir da lista de pedidos e da lista de consultas.
+- **Por onde:** o aviso fica guardado na base de dados e aparece na página "Notificações", com o número das não lidas no menu; em paralelo segue um email. Em desenvolvimento e na demonstração o email fica escrito no log (`MAIL_MAILER=log`).
+- **Paciente sem conta:** recebe só o email, no email de contacto da ficha. Sem email de contacto não há aviso.
+- **Sem filas:** os avisos são enviados no próprio pedido, depois de a transação ficar gravada.
+
+**Porquê:**
+- Sem aviso, o paciente só descobria uma rejeição ou um cancelamento se fosse ver "As minhas consultas".
+- Avisar alguém do que acabou de fazer é ruído.
+- Com `QUEUE_CONNECTION=database` e sem um `queue:work` a correr (o caso das máquinas do grupo e da demonstração), um aviso em fila nunca seria enviado.
+- Enviar só depois da transação gravada garante que ninguém recebe um email de algo que acabou por não acontecer (por exemplo, um reagendamento recusado por conflito de vaga).
+- Guardam-se os dados do aviso e não o texto: a página escreve a frase no idioma de quem a lê (D03).
+
+**Alternativa rejeitada:** só email. Na demonstração não se via nada, e um paciente sem acesso ao email ficava sem saber.
+
+**Consequência:** tabela `notifications` (a do Laravel). A regra de quem recebe o quê está num único sítio, o serviço `Avisos`, chamado pelo serviço `Marcacoes`.
