@@ -23,7 +23,7 @@ class PedidoConsultaController extends Controller
             ->where('estado', EstadoConsulta::Pedida)
             ->orderBy('data_pedido')
             ->orderBy('id')
-            ->get();
+            ->paginate(20);
 
         return view('rececao.pedidos', ['pedidos' => $pedidos]);
     }

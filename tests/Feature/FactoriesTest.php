@@ -204,6 +204,18 @@ class FactoriesTest extends TestCase
         $this->assertSame(30, $especialidades->pluck('nome')->unique()->count());
     }
 
+    public function test_especialidades_geradas_nao_colidem_com_as_criadas_a_mao(): void
+    {
+        // O caso dos seeders: nomes escolhidos à mão e, a seguir, factories que criam as suas.
+        foreach (['Cardiologia', 'Dermatologia', 'Pediatria', 'Ortopedia'] as $nome) {
+            Especialidade::factory()->create(['nome' => $nome]);
+        }
+
+        Especialidade::factory()->count(20)->create();
+
+        $this->assertSame(24, Especialidade::count());
+    }
+
     public function test_horario_por_omissao_e_um_periodo_valido(): void
     {
         $horario = Horario::factory()->create();

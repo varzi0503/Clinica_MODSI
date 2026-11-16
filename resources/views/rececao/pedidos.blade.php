@@ -5,7 +5,7 @@
 @section('content')
     <h1 class="h3 mb-4">{{ __('Pedidos de consulta') }}</h1>
 
-    <div data-pagina="rececao-pedidos" data-texto-erro="{{ __('Ocorreu um erro. Recarrega a página.') }}">
+    <div data-pagina="rececao-pedidos" data-ha-mais="{{ $pedidos->hasPages() ? 'true' : 'false' }}" data-texto-erro="{{ __('Ocorreu um erro. Recarrega a página.') }}">
     <p class="text-muted {{ $pedidos->isEmpty() ? '' : 'd-none' }}" data-vazio>{{ __('Não há pedidos pendentes.') }}</p>
 
     @if ($pedidos->isNotEmpty())
@@ -59,6 +59,8 @@
                 </tbody>
             </table>
         </div>
+
+        {{ $pedidos->links() }}
     @endif
     </div>
 @endsection
