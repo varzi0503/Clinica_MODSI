@@ -46,6 +46,7 @@ A partir de 3 de novembro de 2026, as decisões técnicas são tomadas pelo Diog
 | D35 | Registo com nº de utente já existente e associação da conta à ficha | Segurança |
 | D36 | Notificações: quem é avisado de quê, e por onde | Âmbito |
 | D37 | Observações e documentos de uma consulta: quem escreve e quem vê | Segurança |
+| D38 | Base de dados de entrega no servidor MariaDB do DEE | Stack |
 
 ---
 
@@ -566,3 +567,17 @@ Os formulários continuam a funcionar sem JavaScript.
 **Alternativa rejeitada:** observações visíveis ao paciente, e documentos visíveis à receção. A primeira foi posta de parte pela razão acima; a segunda violava o RNF03.
 
 **Consequência:** tabelas `observacoes` e `documentos`. O paciente e o profissional passam a ter uma página de detalhe de cada consulta. O PHP tem de aceitar ficheiros de 5 MB (`upload_max_filesize`), o que está explicado no README.
+
+---
+
+## D38 — Base de dados de entrega no servidor MariaDB do DEE
+
+**Decisão:** a base de dados da entrega fica alojada no servidor AVE do DEE, que corre MariaDB (conta da UC, gerida por phpMyAdmin). A aplicação mantém-se compatível com MySQL 8.0 (D01) e passa a ser verificada também em MariaDB.
+
+**Porquê:** foi o servidor disponibilizado pela UC para alojar as bases de dados dos projetos.
+
+**O que foi verificado:** a suite completa (migrations, coluna gerada `vaga_ocupada`, índices únicos, vistas SQL e restrições) passa em MariaDB 10.6 e 11.4, com o driver `mysql` e com o driver `mariadb` do Laravel.
+
+**Consequência:**
+- As migrations dos horários e das consultas só criavam as restrições CHECK com o driver `mysql`. Uma migration nova cria-as também com o driver `mariadb`, e um teste confirma que a base de dados recusa horas fora de :00/:30 e horários inválidos (este teste só corre em MySQL e MariaDB).
+- O D01 continua válido para o desenvolvimento: cada elemento usa o MySQL local, e o servidor do DEE fica reservado para a base de dados de entrega, para que um `migrate:fresh` de um não apague os dados dos outros.
