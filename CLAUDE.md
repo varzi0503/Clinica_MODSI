@@ -25,7 +25,7 @@ Plataforma de gestão de consultas médicas (MODSI, ISEP). Laravel 13, PHP 8.4, 
 
 - `Consulta::registarPedido()` e `->mudarEstado()`: única forma de criar ou mudar estados. Lançam `TransicaoEstadoInvalida`.
 - `App\Services\Disponibilidade`: `vagasLivres()` e `estaLivre()`. Não recalcular vagas à mão.
-- `App\Services\Marcacoes` (a criar no #66): pedir, marcar, rejeitar, cancelar, reagendar. Tudo o que liberta uma vaga promove a lista de espera **na mesma transação**.
+- `App\Services\Marcacoes`: pedir, marcar, rejeitar, cancelar, reagendar e lista de espera. Tudo o que liberta uma vaga promove a lista de espera **na mesma transação** (D32).
 - Middleware `perfil:<nome>` (`EnsurePerfil`), com as constantes de `Perfil`. Posse dos dados por policy. Sempre no servidor.
 - `clinica.pedirJson` (`resources/js/ajax.js`). Respostas D28: 2xx `{message}`, 422 validação, 409 conflito de estado, 403 sem acesso. O formulário funciona também sem JS.
 - Rotas por perfil em `routes/web.php`: `admin.*`, `rececao.*`, `profissional.*`, `paciente.*`.
