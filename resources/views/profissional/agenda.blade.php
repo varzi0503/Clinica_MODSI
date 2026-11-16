@@ -60,7 +60,7 @@
                         <li class="list-group-item d-flex flex-wrap gap-3 align-items-start">
                             <span class="fw-semibold" style="min-width: 3.5rem">{{ $consulta->inicio->format('H:i') }}</span>
                             <div class="flex-grow-1">
-                                <div>{{ $consulta->paciente->nome }}
+                                <div><a href="{{ route('profissional.pacientes.historico', $consulta->paciente) }}" title="{{ __('Histórico do paciente') }}">{{ $consulta->paciente->nome }}</a>
                                     <small class="text-muted">· {{ $consulta->especialidade->nome }}</small>
                                 </div>
                                 @if ($consulta->motivo_consulta)

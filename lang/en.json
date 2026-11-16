@@ -13,6 +13,7 @@
     "Ainda não definiu nenhum período de atendimento.": "You have not defined any consultation periods yet.",
     "Ainda não há especialidades.": "There are no specialties yet.",
     "Ainda não há especialidades. Crie pelo menos uma antes de criar profissionais.": "There are no specialties yet. Create at least one before creating professionals.",
+    "Ainda não tem consultas passadas.": "You have no past appointments yet.",
     "Ainda não tem conta?": "Don't have an account yet?",
     "Alterar palavra-passe": "Change password",
     "Anterior": "Previous",
@@ -108,6 +109,7 @@
     "Ficou na lista de espera para :data com :profissional. Se a vaga ficar livre, o seu pedido passa a pendente.": "You are on the waiting list for :data with :profissional. If the slot becomes free, your request becomes pending.",
     "Filtrar": "Filter",
     "Guardar": "Save",
+    "Histórico do paciente": "Patient history",
     "Hoje": "Today",
     "Hora de fim": "End time",
     "Hora de início": "Start time",
@@ -179,6 +181,7 @@
     "Palavra-passe atual": "Current password",
     "Palavra-passe inicial": "Initial password",
     "Para alterar o email de entrada ou o nº de utente, contacte a receção.": "To change the sign-in email or the patient number, contact the front desk.",
+    "Passadas": "Past",
     "Pedida": "Requested",
     "Pedido em": "Requested at",
     "Pedido enviado para :data com :profissional. A receção vai confirmá-lo.": "Request sent for :data with :profissional. The front desk will confirm it.",
@@ -200,6 +203,7 @@
     "Profissional :nome atualizado.": "Professional :nome updated.",
     "Profissional :nome criado.": "Professional :nome created.",
     "Projeto académico MODSI, ISEP": "MODSI academic project, ISEP",
+    "Próximas": "Upcoming",
     "Quarta-feira": "Wednesday",
     "Quinta-feira": "Thursday",
     "Reagendar": "Reschedule",
@@ -220,6 +224,7 @@
     "Sessão terminada.": "Logged out.",
     "Sexta-feira": "Friday",
     "Sábado": "Saturday",
+    "Só aparecem as consultas deste paciente consigo.": "Only this patient's appointments with you are shown.",
     "Só pode cancelar consultas confirmadas que ainda não começaram.": "You can only cancel confirmed appointments that have not started yet.",
     "Só pode registar a consulta depois da hora de início.": "You can only record the appointment after its start time.",
     "Só se reagendam pedidos pendentes e consultas confirmadas que ainda não começaram.": "Only pending requests and confirmed appointments that have not started can be rescheduled.",
@@ -235,5 +240,6 @@
     "Vaga escolhida": "Selected slot",
     "Vista": "View",
     "você": "you",
-    "Voltar": "Back"
+    "Voltar": "Back",
+    "Voltar à agenda": "Back to the agenda"
 }

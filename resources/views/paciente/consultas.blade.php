@@ -7,10 +7,23 @@
         <h1 class="h3 mb-0">{{ __('As minhas consultas') }}</h1>
         <a href="{{ route('paciente.pedidos.create') }}" class="btn btn-primary">{{ __('Pedir consulta') }}</a>
     </div>
-    <p class="text-muted small mb-4">{{ __('Pode cancelar um pedido ou uma consulta confirmada até :horas horas antes. Depois disso, contacte a receção.', ['horas' => $horas]) }}</p>
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+            <a class="nav-link {{ $passadas ? '' : 'active' }}" @if (! $passadas) aria-current="page" @endif
+               href="{{ route('paciente.consultas.index') }}">{{ __('Próximas') }}</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {{ $passadas ? 'active' : '' }}" @if ($passadas) aria-current="page" @endif
+               href="{{ route('paciente.consultas.index', ['vista' => 'passadas']) }}">{{ __('Passadas') }}</a>
+        </li>
+    </ul>
+
+    @unless ($passadas)
+        <p class="text-muted small mb-4">{{ __('Pode cancelar um pedido ou uma consulta confirmada até :horas horas antes. Depois disso, contacte a receção.', ['horas' => $horas]) }}</p>
+    @endunless
 
     @if ($consultas->isEmpty())
-        <p class="text-muted">{{ __('Não tem consultas marcadas.') }}</p>
+        <p class="text-muted">{{ $passadas ? __('Ainda não tem consultas passadas.') : __('Não tem consultas marcadas.') }}</p>
     @else
         <div class="table-responsive">
             <table class="table align-middle">
@@ -29,9 +42,16 @@
                             <td class="text-nowrap">{{ $consulta->inicio->format('d/m/Y H:i') }}</td>
                             <td>{{ $consulta->profissional->user->name }}</td>
                             <td>{{ $consulta->especialidade->nome }}</td>
-                            <td>@include('partials.estado', ['estado' => $consulta->estado])</td>
+                            <td>
+                                @include('partials.estado', ['estado' => $consulta->estado])
+                                @if ($consulta->motivoDoEstado())
+                                    <div class="small text-muted">{{ __('Motivo') }}: {{ $consulta->motivoDoEstado() }}</div>
+                                @endif
+                            </td>
                             <td class="text-end">
-                                @if (in_array($consulta->id, $cancelaveis, true))
+                                @if ($passadas)
+                                    {{-- O histórico é só de leitura. --}}
+                                @elseif (in_array($consulta->id, $cancelaveis, true))
                                     <button type="button" class="btn btn-sm btn-outline-danger"
                                             data-bs-toggle="collapse" data-bs-target="#cancelar-{{ $consulta->id }}"
                                             aria-expanded="false" aria-controls="cancelar-{{ $consulta->id }}">{{ __('Cancelar') }}</button>
@@ -57,5 +77,7 @@
                 </tbody>
             </table>
         </div>
+
+        {{ $consultas->links() }}
     @endif
 @endsection

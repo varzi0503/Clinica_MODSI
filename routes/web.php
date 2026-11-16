@@ -10,6 +10,7 @@ use App\Http\Controllers\Paciente\ConsultaController as ConsultaDoPacienteContro
 use App\Http\Controllers\Paciente\PedidoController;
 use App\Http\Controllers\Profissional\AgendaController;
 use App\Http\Controllers\Profissional\CancelarConsultaController;
+use App\Http\Controllers\Profissional\HistoricoPacienteController;
 use App\Http\Controllers\Profissional\HorarioController;
 use App\Http\Controllers\Profissional\RegistoConsultaController;
 use App\Http\Controllers\Rececao\ConsultaController as ConsultaDaRececaoController;
@@ -70,6 +71,7 @@ Route::middleware(['auth', 'perfil:profissional'])->prefix('profissional')->name
     Route::post('/consultas/{consulta}/realizada', [RegistoConsultaController::class, 'realizada'])->can('registar', 'consulta')->name('consultas.realizada');
     Route::post('/consultas/{consulta}/faltou', [RegistoConsultaController::class, 'faltou'])->can('registar', 'consulta')->name('consultas.faltou');
     Route::post('/consultas/{consulta}/cancelar', CancelarConsultaController::class)->can('cancelar', 'consulta')->name('consultas.cancelar');
+    Route::get('/pacientes/{paciente}/historico', HistoricoPacienteController::class)->can('verHistorico', 'paciente')->name('pacientes.historico');
     Route::get('/horario', [HorarioController::class, 'index'])->name('horario.index');
     Route::post('/horario', [HorarioController::class, 'store'])->name('horario.store');
     Route::delete('/horario/{horario}', [HorarioController::class, 'destroy'])->can('apagar', 'horario')->name('horario.destroy');

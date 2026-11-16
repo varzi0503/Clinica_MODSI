@@ -80,6 +80,19 @@ class Consulta extends Model
         return $this->hasMany(HistoricoEstado::class)->orderBy('data_hora')->orderBy('id');
     }
 
+    /**
+     * O motivo dado quando a consulta foi rejeitada ou cancelada (está no último registo do histórico).
+     * Nulo nos outros estados e quando não foi indicado motivo.
+     */
+    public function motivoDoEstado(): ?string
+    {
+        if (! in_array($this->estado, [EstadoConsulta::Rejeitada, EstadoConsulta::Cancelada], true)) {
+            return null;
+        }
+
+        return $this->historico->last()?->motivo;
+    }
+
     /** Lista de espera de uma vaga, por ordem de pedido. */
     #[Scope]
     protected function emEspera(Builder $query): void

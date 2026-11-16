@@ -11,8 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * "As minhas consultas": o paciente vê as suas consultas futuras e cancela-as (UC08, issue #54).
- * O histórico completo, com as consultas passadas, é da issue #55.
+ * "As minhas consultas": o paciente vê as suas consultas futuras e cancela-as (UC08, issue #54),
+ * e consulta o histórico das passadas, com o estado e o motivo (UC09, issue #55).
  */
 class ConsultaController extends Controller
 {
@@ -24,15 +24,21 @@ class ConsultaController extends Controller
                 ->with('error', __('A sua conta não tem ficha de paciente associada. Contacte a receção.'));
         }
 
+        $filtros = $request->validate(['vista' => ['nullable', 'in:proximas,passadas']]);
+        $passadas = ($filtros['vista'] ?? 'proximas') === 'passadas';
+
+        // Próximas: da mais próxima para a mais distante. Passadas (UC09): da mais recente para a mais antiga.
         $consultas = $paciente->consultas()
-            ->with(['profissional.user', 'especialidade'])
-            ->where('inicio', '>=', now())
-            ->orderBy('inicio')
-            ->get();
+            ->with(['profissional.user', 'especialidade', 'historico'])
+            ->where('inicio', $passadas ? '<' : '>=', now())
+            ->orderBy('inicio', $passadas ? 'desc' : 'asc')
+            ->paginate(20)
+            ->withQueryString();
 
         return view('paciente.consultas', [
             'consultas' => $consultas,
-            'cancelaveis' => $consultas->filter(fn (Consulta $c) => $marcacoes->pacientePodeCancelar($c))->modelKeys(),
+            'passadas' => $passadas,
+            'cancelaveis' => $consultas->getCollection()->filter(fn (Consulta $c) => $marcacoes->pacientePodeCancelar($c))->modelKeys(),
             'horas' => Marcacoes::HORAS_ANTECEDENCIA_PACIENTE,
         ]);
     }
