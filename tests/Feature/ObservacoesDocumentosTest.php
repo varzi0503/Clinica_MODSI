@@ -9,6 +9,7 @@ use App\Models\Paciente;
 use App\Models\Profissional;
 use App\Models\User;
 use Carbon\CarbonImmutable;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -46,6 +47,12 @@ class ObservacoesDocumentosTest extends TestCase
         $this->rececionista = User::factory()->rececionista()->create();
         $this->outroPaciente = Paciente::factory()->create()->user;
         $this->outroProfissional = Profissional::factory()->create()->user;
+    }
+
+    /** O disco simulado dos documentos, com o tipo concreto que tem assertExists() e assertMissing(). */
+    private function disco(): FilesystemAdapter
+    {
+        return Storage::disk(Documento::DISCO);
     }
 
     private function pdf(string $nome = 'analises.pdf', int $kb = 200): UploadedFile
@@ -112,7 +119,7 @@ class ObservacoesDocumentosTest extends TestCase
 
         // O nome no disco é gerado: o nome enviado pelo utilizador nunca chega ao sistema de ficheiros.
         foreach ($documentos as $documento) {
-            Storage::disk(Documento::DISCO)->assertExists($documento->caminho);
+            $this->disco()->assertExists($documento->caminho);
             $this->assertStringStartsWith("documentos/{$this->consulta->id}/", $documento->caminho);
             $this->assertStringNotContainsString(pathinfo($documento->nome_original, PATHINFO_FILENAME), $documento->caminho);
         }
@@ -150,7 +157,7 @@ class ObservacoesDocumentosTest extends TestCase
         $this->actingAs($this->paciente->user)->post(route('documentos.store', $this->consulta), [])->assertSessionHasErrors('ficheiro');
 
         $this->assertSame(0, Documento::count());
-        $this->assertSame([], Storage::disk(Documento::DISCO)->allFiles());
+        $this->assertSame([], $this->disco()->allFiles());
 
         $this->carregar($this->paciente->user, $this->pdf('no-limite.pdf', Documento::TAMANHO_MAXIMO_KB))->assertSessionHasNoErrors();
     }
@@ -158,7 +165,7 @@ class ObservacoesDocumentosTest extends TestCase
     public function test_quem_nao_e_da_consulta_nao_carrega_nao_descarrega_nem_apaga(): void
     {
         $documento = Documento::factory()->doPaciente()->for($this->consulta)->create();
-        Storage::disk(Documento::DISCO)->put($documento->caminho, 'conteúdo');
+        $this->disco()->put($documento->caminho, 'conteúdo');
 
         $this->get(route('documentos.show', $documento))->assertRedirect(route('login'));
 
@@ -170,7 +177,7 @@ class ObservacoesDocumentosTest extends TestCase
         $this->actingAs($this->outroPaciente)->get(route('paciente.consultas.show', $this->consulta))->assertForbidden();
 
         $this->assertSame(1, Documento::count());
-        Storage::disk(Documento::DISCO)->assertExists($documento->caminho);
+        $this->disco()->assertExists($documento->caminho);
     }
 
     public function test_so_quem_carregou_apaga_e_o_ficheiro_sai_do_disco(): void
@@ -184,7 +191,7 @@ class ObservacoesDocumentosTest extends TestCase
 
         $this->actingAs($this->paciente->user)->delete(route('documentos.destroy', $documento))->assertSessionHas('success');
         $this->assertModelMissing($documento);
-        Storage::disk(Documento::DISCO)->assertMissing($documento->caminho);
+        $this->disco()->assertMissing($documento->caminho);
     }
 
     public function test_nao_se_juntam_documentos_a_consultas_canceladas_ou_em_espera(): void
@@ -196,7 +203,7 @@ class ObservacoesDocumentosTest extends TestCase
         }
 
         $this->assertSame(0, Documento::count());
-        $this->assertSame([], Storage::disk(Documento::DISCO)->allFiles());
+        $this->assertSame([], $this->disco()->allFiles());
     }
 
     public function test_paciente_junta_documentos_a_um_pedido_ainda_por_confirmar_e_a_uma_consulta_realizada(): void
