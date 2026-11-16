@@ -12,6 +12,12 @@
             <directory>tests/Feature</directory>
         </testsuite>
     </testsuites>
+    <groups>
+        <!-- A medição de desempenho (#80) demora e cria muitos dados: corre-se à parte (php artisan test com a opção group=desempenho). -->
+        <exclude>
+            <group>desempenho</group>
+        </exclude>
+    </groups>
     <source>
         <include>
             <directory>app</directory>
