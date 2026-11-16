@@ -4,7 +4,17 @@ Projeto de grupo da unidade curricular **MODSI** (ISEP), tema 1: plataforma web 
 
 Stack: **Laravel 13 · PHP 8.4 · MySQL 8.0 · Blade + Bootstrap 5 · AJAX com `fetch`**
 
-> README provisório. A versão final (issue #44) entra antes do congelamento do código, a 6 de dezembro.
+## O que a aplicação faz
+
+| Quem | O que faz |
+|---|---|
+| Visitante | Vê a informação da clínica, as especialidades, os profissionais e as vagas livres; regista-se como paciente |
+| Paciente | Pede consultas (ou fica em lista de espera numa vaga ocupada), cancela até 24 horas antes, vê as próximas e as passadas, junta documentos, recebe notificações e edita os seus dados |
+| Profissional (médico ou enfermeiro) | Define o horário semanal, vê a agenda, regista a consulta como realizada ou falta, cancela com motivo, escreve observações, junta documentos e vê o histórico dos seus pacientes |
+| Rececionista | Confirma e rejeita pedidos, marca, cancela e reagenda consultas, vê a agenda geral, gere pacientes, profissionais e especialidades, e consulta as estatísticas |
+| Administrador | Cria contas, atribui perfis, ativa e desativa contas |
+
+A interface existe em português e em inglês (seletor no menu). As regras de acesso são verificadas no servidor: o perfil por middleware e a posse dos dados por policies.
 
 ## Requisitos
 
@@ -82,7 +92,7 @@ php artisan migrate:fresh --seed
 | `admin@example.com` | administrador | `password` |
 | `test@example.com` | rececionista | `password` |
 
-Os pacientes registam-se em `/registar`. Os dados de demonstração (profissionais, horários, pacientes, consultas) entram com a issue #37.
+Os pacientes registam-se em `/registar`. Os profissionais e as especialidades criam-se pela receção (menu Gestão). Os dados de demonstração (profissionais, horários, pacientes, consultas) entram com a issue #37.
 
 ### 4. Abrir
 
@@ -97,6 +107,9 @@ http://clinica.test
 | `php artisan test` | Correr os testes. Usam SQLite em memória, não tocam na BD `clinica` |
 | `npm run dev` | Recompilar CSS e JS automaticamente enquanto desenvolves |
 | `php artisan route:list` | Ver todas as rotas |
+| `php artisan consultas:expirar-espera` | Cancelar os pedidos em lista de espera cuja vaga já passou (D33). Corre-se à mão |
+
+Os emails das notificações não são enviados: ficam escritos em `storage/logs/laravel.log` (`MAIL_MAILER=log`).
 
 ## Documentação
 
