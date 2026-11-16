@@ -116,58 +116,35 @@ Abrir o PR é um passo à parte: `git push -u origin HEAD` e depois `gh pr creat
 - **Idioma:** PT por omissão, EN alternativo, fallback `en`. Os textos escrevem-se em PT com `__()` e a tradução vai para `lang/en.json`. `lang/pt/validation.php` tem nomes PT para os campos próprios e usa "palavra-passe", não "senha".
 - **Página de disponibilidade pública,** filtrada por especialidade. Devolve só as horas das vagas, sem dados de pacientes, com limite de 60 pedidos por minuto.
 
-## 5. O que está implementado (`main`, 99 testes verdes)
+## 5. O que está implementado (`main`, 293 testes verdes)
 
-**Esquema:**
-- `perfis`; `users` (+ `perfil_id`, `ativo`, `tentativas_falhadas`, `bloqueado_ate`); `especialidades`; `profissionais`; `especialidade_profissional`; `pacientes`; `horarios`; `consultas`; `historico_estados`.
-- `consultas.vaga_ocupada` é uma **coluna gerada STORED**: vale 1 nos estados que ocupam vaga e NULL nos restantes.
-  - `UNIQUE (profissional_id, inicio, vaga_ocupada)` e `UNIQUE (paciente_id, inicio, vaga_ocupada)`.
-  - Há ainda CHECKs de horas meias/certas (só em MySQL).
-- `historico_estados.user_id` aceita nulo, para as mudanças feitas pelo sistema.
+> Atualizado a 16 nov. 2026. As secções 1 a 4 mantêm-se; a secção 3 descreve a forma de trabalhar antiga (patches). Desde 15 nov. o Claude trabalha numa sessão na cloud com PHP 8.4 em Docker, faz push para um branch `claude/*` e o Diogo abre os PRs com `git cherry-pick` (ver `.ai/guidelines/clinica.md`).
 
-**Peças de arquitetura a reutilizar:**
-- `Consulta::registarPedido()` e `->mudarEstado()`: única forma de mudar estados. Fazem a transação com o histórico e validam a matriz. Lançam `TransicaoEstadoInvalida`.
-- `App\Services\Disponibilidade`: `vagasLivres($prof, $de, $ate)` e `estaLivre($prof, $inicio)`.
-- **Middleware `perfil:`** (`EnsurePerfil`): devolve 403 a quem tem o perfil errado e expulsa contas desativadas a meio da sessão.
-- **Padrão AJAX** (`resources/js/ajax.js`, `clinica.pedirJson`):
-  - trata do CSRF, do `Accept: application/json` e de falhas de rede;
-  - respostas: 2xx `{message}`, 422 validação, 409 conflito de estado, 403 sem acesso.
-- `resources/js/disponibilidade.js`: com `data-selecionavel="true"`, as vagas passam a ser botões que preenchem o formulário `[data-marcacao]`. Usado no UC17 e no UC07.
-- Rotas agrupadas por perfil: `admin.*`, `rececao.*`, `profissional.*`, `paciente.*`.
-- A paginação usa Bootstrap 5 (`AppServiceProvider`).
+**Decisões:** `docs/decisoes.md` vai até à **D37**. As mais recentes: D31 reagendar cria consulta nova, D32/D33 lista de espera, D34 prazos de cancelamento, D35 registo e associação de conta, D36 notificações, D37 observações e documentos.
 
-**Issues fechadas ou avançadas (PR):**
-- #34, #35: migrations e restrição anti-duplicação (#90). Fechadas à mão.
-- #61: transições de estado (#94).
-- #4: estado `faltou` (#93). Falta a parte de especificação (cenários UC13/UC14), que é do Filipe.
-- #49: login, logout e bloqueio (#92).
-- #50: só em parte. O middleware está feito; faltam as **policies de posse** em cada caso de uso.
-- #65 UC16 (#96), #51 AJAX (#97), #59 UC06 (#98), #66 UC17 (#99), #48 UC04 (#100), #53 UC07 (#102).
-- #60 UC12 (#105), #62 UC11 (#106), #63 UC13 (#107), #69 + #72 UC21/UC24 (#108).
+**Esquema (além do que já existia):** `consultas.reagendada_de_id`; vistas `v_consultas_detalhe`, `v_estatisticas_estado`, `v_estatisticas_profissional`, `v_estatisticas_especialidade`; tabelas `notifications`, `observacoes` e `documentos`.
 
-## 6. Próximos passos (ordem combinada)
+**Peças de arquitetura:**
+- `App\Services\Marcacoes`: pedir, marcar, confirmar, rejeitar, cancelar, reagendar, lista de espera e promoção. Único sítio com regras de negócio de consultas.
+- `App\Services\Avisos`: quem é notificado de quê. `App\Services\Estatisticas`: leitura das vistas. `App\Services\Disponibilidade`: vagas livres e ocupadas.
+- Policies: `ConsultaPolicy`, `HorarioPolicy`, `PacientePolicy`, `DocumentoPolicy`, aplicadas nas rotas com `->can()`.
+- `TransicaoEstadoInvalida` respondida em `bootstrap/app.php` (409 em JSON, `back()` com erro fora de JSON).
+- Factories para todos os modelos; a `ConsultaFactory` cria o histórico completo de cada estado.
+- CI em `.github/workflows/testes.yml` (PHP 8.4, SQLite), em cada PR para o `main`.
 
-1. **#70 UC22:** a receção cria um profissional (conta + ficha + especialidades de uma vez; tipo e cédula).
-2. **#71 UC23:** a receção gere especialidades. Não se remove uma especialidade com profissionais associados.
-3. **#73 UC25:** estatísticas (totais por estado, profissional e especialidade). Fica no fim porque precisa de dados.
+**Funcionalidades por perfil:** ver a tabela do `README.md`.
 
-Depois, sem ordem fechada:
-- Cancelamentos: #54 (paciente) e #64 (médico, com motivo).
-- #67: reagendar ou cancelar pela receção. Reagendar liberta a vaga antiga e ocupa a nova na mesma transação.
-- **#58 UC19:** gerir pacientes, incluindo **associar uma conta a uma ficha de balcão** e uma **pesquisa** que substitua a lista de todos os pacientes no UC17.
-- Históricos: #55 UC09 (paciente) e #57 UC15 (médico, só os seus pacientes).
-- #56 UC10: editar dados. O D10 obriga a gravar o nome em `users` e em `pacientes` na mesma transação.
-- **#75:** lista de espera (pedir vaga ocupada; promoção automática quando uma vaga se liberta).
-- #76: observações e documentos. #74: notificações por email (pode incluir o convite em vez da palavra-passe definida pelo admin).
-- #52: páginas públicas. #36: vistas SQL. #78: paginação nas restantes listas.
+## 6. O que falta
+
+- **#37 seeders com dados de demonstração** (Timóteo). Sem eles, a demo e os testes manuais começam com a base de dados vazia.
+- **#79 teste de concorrência** e **#80 medição de desempenho**: medições para o relatório.
+- **Relatório:** o capítulo 3 e o diagrama ER estão desatualizados face ao código (atores da D26, sete estados, tabelas novas). As diferenças foram enviadas ao Filipe por mensagem.
+- **#84:** dump da base de dados, zip do código e submissão.
 
 ## 7. Pendências e riscos
 
-- **#37 seeders (Timóteo):** urgente. Sem profissionais, horários e pacientes de exemplo, cada teste no browser e a demo começam com `tinker`.
-- **Testes dos colegas nos PRs #96–#108:** combinado que testam depois do merge e comentam no PR. Confirmar que acontece.
-- **`docs/decisoes.md` e CONTRIBUTING duplicado:** o `docs-decisoes.patch` (11 nov., branch `docs/…`) acrescenta D18–D30, marca D15 e D17 como substituídas (sem as apagar, como o próprio documento exige) e remove o `docs/CONTRIBUTING.md` antigo. **Confirmar que foi integrado.** Daqui em diante, cada decisão nova ganha uma entrada Dnn.
-- **Numeração dos UC desalinhada:** as issues (criadas pelo `criar-issues.ps1` antigo) usam uma numeração, e o relatório outra. O `docs/decisoes.md` fala em "UC06 médica / UC07 enfermagem" (D04), "UC25 Atribuir perfil" (D08) e associação de ficha no "UC20" (D11), enquanto as issues dizem UC06 = disponibilidade, UC07 = pedir consulta, UC24 = atribuir perfis e UC20 = agenda geral. Os commits, os títulos dos PRs e os comentários no código usam a **numeração das issues**. **A confirmar com o relatório antes da defesa.** Para evitar mais confusão, citar os casos de uso pela issue (`#NN`) ou pelo nome.
-- **#44 README:** falta documentar `npm install` / `npm run build`, o hotspot do ISEP e as contas do seeder.
-- A lista de pacientes no UC17 é uma lista completa (fica impraticável com muitas fichas). Resolve-se no #58.
-- Inconsistência visual pequena: "nº utente" (UC17) e "Nº de utente" (registo).
-- O histórico do `main` tem dois commits com o título do CONTRIBUTING (#103, e o #104, que na verdade é o `.env.example`). Não se corrige; só ter atenção aos títulos dos PRs daqui em diante.
+- **PHP:** o projeto é 8.4 (D01). O `CLAUDE.md` do `main` foi gerado numa máquina com 8.5 e ainda o diz; corrige-se com `php artisan boost:update` numa máquina em 8.4.
+- **Limite de upload:** os documentos aceitam 5 MB, mas o PHP vem com 2 MB. Está explicado no README.
+- **Concorrência:** a promoção da lista de espera usa `lockForUpdate()`, mas a suite não simula dois pedidos em simultâneo. É o que o #79 deve cobrir.
+- **Numeração dos UC:** as issues e o relatório usam números diferentes. Citar pela issue (`#NN`) ou pelo nome.
+- **Menu da receção:** entre 992 e 1200 px parte em duas linhas.
