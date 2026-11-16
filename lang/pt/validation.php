@@ -198,7 +198,7 @@ return [
         'created_at'               => 'criado em',
         'creator'                  => 'criador',
         'currency'                 => 'moeda',
-        'current_password'         => 'senha atual',
+        'current_password'         => 'palavra-passe atual',
         'customer'                 => 'cliente',
         'date'                     => 'data',
         'date_of_birth'            => 'data de nascimento',

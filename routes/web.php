@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\UtilizadorController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegistoController;
+use App\Http\Controllers\DadosPessoaisController;
 use App\Http\Controllers\DisponibilidadeController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Paciente\ConsultaController as ConsultaDoPacienteController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\Rececao\MarcacaoController;
 use App\Http\Controllers\Rececao\PacienteController;
 use App\Http\Controllers\Rececao\PedidoConsultaController;
 use App\Http\Controllers\Rececao\ProfissionalController;
+use App\Models\Perfil;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
@@ -38,6 +40,14 @@ Route::middleware('guest')->group(function () {
 
 // POST (e não GET) porque termina a sessão; o formulário leva token CSRF.
 Route::post('/sair', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
+
+// UC10 — qualquer conta autenticada; cada uma só vê e altera os seus próprios dados.
+// O middleware perfil: com todos os perfis serve para expulsar contas desativadas a meio da sessão.
+Route::middleware(['auth', 'perfil:'.implode(',', Perfil::NOMES)])->prefix('dados-pessoais')->name('dados-pessoais.')->group(function () {
+    Route::get('/', [DadosPessoaisController::class, 'edit'])->name('edit');
+    Route::put('/', [DadosPessoaisController::class, 'update'])->name('update');
+    Route::put('/palavra-passe', [DadosPessoaisController::class, 'atualizarPalavraPasse'])->name('palavra-passe');
+});
 
 Route::middleware(['auth', 'perfil:administrador'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/utilizadores', [UtilizadorController::class, 'index'])->name('utilizadores.index');
