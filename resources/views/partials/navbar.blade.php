@@ -95,7 +95,8 @@
 
                 @auth
                     <li class="nav-item d-flex align-items-center">
-                        <span class="navbar-text me-2">{{ auth()->user()->name }}</span>
+                        <a class="nav-link {{ request()->routeIs('dados-pessoais.*') ? 'active' : '' }}"
+                           href="{{ route('dados-pessoais.edit') }}" title="{{ __('Dados Pessoais') }}">{{ auth()->user()->name }}</a>
                     </li>
                     <li class="nav-item d-flex align-items-center">
                         <form method="POST" action="{{ route('logout') }}">
