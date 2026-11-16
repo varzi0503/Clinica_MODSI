@@ -72,7 +72,7 @@ if (pagina) {
             cartao.append(el('h2', 'h5', `${prof.nome} (${prof.tipo})`));
 
             // Só nas páginas de marcação: vagas ocupadas, onde se pode ficar em lista de espera.
-            const ocupadas = new Set(selecionavel ? (prof.ocupadas ?? []) : []);
+            const ocupadas = new Set(selecionavel && pagina.dataset.semEspera !== 'true' ? (prof.ocupadas ?? []) : []);
             const todas = [...prof.vagas, ...ocupadas].sort();
 
             if (prof.vagas.length === 0) {

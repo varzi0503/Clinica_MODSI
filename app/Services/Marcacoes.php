@@ -20,8 +20,6 @@ use Illuminate\Validation\ValidationException;
  * Os erros de negócio saem como ValidationException, já com o campo do formulário a que dizem
  * respeito, para os controladores não precisarem de try/catch. As mudanças de estado continuam
  * a passar só por Consulta::registarPedido() e ->mudarEstado().
- *
- * Reagendar entra aqui com o respetivo caso de uso (#67).
  */
 class Marcacoes
 {
@@ -96,6 +94,63 @@ class Marcacoes
 
             $this->promoverListaEspera($consulta->profissional, $consulta->inicio->toImmutable());
         });
+    }
+
+    /**
+     * Reagenda: na mesma transação, a consulta antiga é cancelada com o motivo "Reagendada" e
+     * nasce uma nova na vaga escolhida, ligada à antiga (D31). A nova herda o estado da antiga
+     * (pendente continua pendente, confirmada nasce confirmada), a vaga antiga fica livre e a
+     * sua lista de espera é promovida (D32). A vaga nova tem de estar livre: reagendar não põe
+     * ninguém em lista de espera.
+     *
+     * @throws ValidationException se a vaga nova não servir
+     * @throws TransicaoEstadoInvalida se a consulta já não estiver pendente nem confirmada
+     */
+    public function reagendar(Consulta $antiga, Profissional $profissional, CarbonImmutable $inicio, User $por): Consulta
+    {
+        if (! $this->podeSerReagendada($antiga)) {
+            throw new TransicaoEstadoInvalida($antiga->estado, EstadoConsulta::Cancelada);
+        }
+
+        $this->validarEspecialidade($profissional, $antiga->especialidade_id);
+
+        if (! $this->disponibilidade->estaLivre($profissional, $inicio)) {
+            throw ValidationException::withMessages([
+                'inicio' => __('Esta vaga já não está disponível.'),
+            ]);
+        }
+
+        try {
+            return DB::transaction(function () use ($antiga, $profissional, $inicio, $por) {
+                $estavaConfirmada = $antiga->estado === EstadoConsulta::Confirmada;
+
+                // Primeiro liberta-se a vaga antiga: o paciente pode estar a mudar só de profissional, à mesma hora.
+                $antiga->mudarEstado(EstadoConsulta::Cancelada, $por, 'Reagendada');
+
+                $nova = $this->registar($antiga->paciente, $profissional, $antiga->especialidade_id, $inicio, $antiga->motivo_consulta, $por);
+                $nova->forceFill(['reagendada_de_id' => $antiga->id])->save();
+
+                if ($estavaConfirmada) {
+                    $nova->mudarEstado(EstadoConsulta::Confirmada, $por);
+                }
+
+                $this->promoverListaEspera($antiga->profissional, $antiga->inicio->toImmutable());
+
+                return $nova;
+            });
+        } catch (UniqueConstraintViolationException) {
+            // A transação desfez tudo: a consulta antiga continua como estava.
+            throw ValidationException::withMessages([
+                'inicio' => __('O paciente já tem uma consulta a essa hora, ou a vaga acabou de ser ocupada.'),
+            ]);
+        }
+    }
+
+    /** Reagendam-se pedidos pendentes e consultas confirmadas que ainda não começaram. */
+    public function podeSerReagendada(Consulta $consulta): bool
+    {
+        return in_array($consulta->estado, [EstadoConsulta::Pedida, EstadoConsulta::Confirmada], true)
+            && $consulta->inicio->isFuture();
     }
 
     /**

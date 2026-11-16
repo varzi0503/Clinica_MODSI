@@ -11,6 +11,7 @@ use App\Http\Controllers\Profissional\AgendaController;
 use App\Http\Controllers\Profissional\CancelarConsultaController;
 use App\Http\Controllers\Profissional\HorarioController;
 use App\Http\Controllers\Profissional\RegistoConsultaController;
+use App\Http\Controllers\Rececao\ConsultaController as ConsultaDaRececaoController;
 use App\Http\Controllers\Rececao\EspecialidadeController;
 use App\Http\Controllers\Rececao\EstatisticasController;
 use App\Http\Controllers\Rececao\MarcacaoController;
@@ -69,6 +70,10 @@ Route::middleware(['auth', 'perfil:rececionista'])->prefix('rececao')->name('rec
     Route::post('/pedidos/{consulta}/rejeitar', [PedidoConsultaController::class, 'rejeitar'])->can('rejeitar', 'consulta')->name('pedidos.rejeitar');
     Route::get('/consultas/marcar', [MarcacaoController::class, 'create'])->name('consultas.create');
     Route::post('/consultas', [MarcacaoController::class, 'store'])->name('consultas.store');
+    Route::get('/consultas', [ConsultaDaRececaoController::class, 'index'])->name('consultas.index');
+    Route::post('/consultas/{consulta}/cancelar', [ConsultaDaRececaoController::class, 'cancelar'])->can('cancelar', 'consulta')->name('consultas.cancelar');
+    Route::get('/consultas/{consulta}/reagendar', [ConsultaDaRececaoController::class, 'reagendamento'])->can('reagendar', 'consulta')->name('consultas.reagendamento');
+    Route::post('/consultas/{consulta}/reagendar', [ConsultaDaRececaoController::class, 'reagendar'])->can('reagendar', 'consulta')->name('consultas.reagendar');
     Route::get('/profissionais', [ProfissionalController::class, 'index'])->name('profissionais.index');
     Route::get('/profissionais/novo', [ProfissionalController::class, 'create'])->name('profissionais.create');
     Route::post('/profissionais', [ProfissionalController::class, 'store'])->name('profissionais.store');
