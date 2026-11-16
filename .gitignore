@@ -1,6 +1,9 @@
 *.log
 .DS_Store
 .env
+# Ficheiros de ambiente extra (por exemplo .env.ave, com a palavra-passe do servidor do DEE)
+.env.*
+!.env.example
 .env.backup
 .env.production
 .phpactor.json
