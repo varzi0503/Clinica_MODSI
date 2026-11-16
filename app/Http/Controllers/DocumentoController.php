@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Consulta;
 use App\Models\Documento;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -45,16 +46,23 @@ class DocumentoController extends Controller
 
     public function show(Documento $documento): StreamedResponse
     {
-        abort_unless(Storage::disk(Documento::DISCO)->exists($documento->caminho), 404);
+        $disco = $this->disco();
+        abort_unless($disco->exists($documento->caminho), 404);
 
-        return Storage::disk(Documento::DISCO)->download($documento->caminho, $documento->nome_original);
+        return $disco->download($documento->caminho, $documento->nome_original);
     }
 
     public function destroy(Documento $documento): RedirectResponse
     {
         $documento->delete();
-        Storage::disk(Documento::DISCO)->delete($documento->caminho);
+        $this->disco()->delete($documento->caminho);
 
         return back()->with('success', __('Documento removido.'));
+    }
+
+    /** O disco privado dos documentos. O tipo concreto dá acesso a download(), que o contrato não declara. */
+    private function disco(): FilesystemAdapter
+    {
+        return Storage::disk(Documento::DISCO);
     }
 }

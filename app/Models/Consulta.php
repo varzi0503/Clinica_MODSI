@@ -14,8 +14,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * O scope emEspera() é declarado mais abaixo com #[Scope]; esta linha diz aos editores como se chama.
+ *
+ * @method static Builder<static> emEspera()
+ */
 // Sem created_at/updated_at: a tabela usa data_pedido e data_estado.
 // vaga_ocupada é uma coluna gerada pela base de dados: nunca se escreve.
 // estado e data_estado também ficam fora do Fillable: mudam só através de mudarEstado().
@@ -138,7 +144,7 @@ class Consulta extends Model
         return DB::transaction(function () use ($dados, $estado, $por) {
             $consulta = new self($dados);
             $consulta->estado = $estado;
-            $consulta->data_pedido = $consulta->data_estado = now();
+            $consulta->data_pedido = $consulta->data_estado = Carbon::now();
             $consulta->save();
 
             $consulta->registarHistorico($por, null);
@@ -162,7 +168,7 @@ class Consulta extends Model
 
         DB::transaction(function () use ($novo, $por, $motivo) {
             $this->estado = $novo;
-            $this->data_estado = now();
+            $this->data_estado = Carbon::now();
             $this->save();
 
             $this->registarHistorico($por, $motivo);
