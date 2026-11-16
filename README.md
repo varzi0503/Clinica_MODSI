@@ -104,9 +104,10 @@ http://clinica.test
 |---|---|
 | `php artisan migrate:fresh --seed` | Apagar e recriar a BD. Correr depois de puxar migrations ou seeders novos |
 | `npm run build` | Recompilar CSS e JS. Correr depois de puxar alterações a `resources/` e antes dos testes |
-| `php artisan test` | Correr os testes. Usam SQLite em memória, não tocam na BD `clinica` |
+| `php artisan test` | Correr os testes. Usam SQLite em memória, não tocam na BD `clinica`. Os testes de concorrência e das restrições CHECK só correm contra MySQL ou MariaDB (ver o topo de `tests/Feature/ConcorrenciaTest.php`) |
 | `npm run dev` | Recompilar CSS e JS automaticamente enquanto desenvolves |
 | `php artisan route:list` | Ver todas as rotas |
+| `php artisan test --group=desempenho` | Medir o tempo das operações habituais com cerca de 29 000 consultas (RNF06). Resultado em `storage/app/desempenho.md` |
 | `php artisan consultas:expirar-espera` | Cancelar os pedidos em lista de espera cuja vaga já passou (D33). Corre-se à mão |
 
 Os emails das notificações não são enviados: ficam escritos em `storage/logs/laravel.log` (`MAIL_MAILER=log`).
