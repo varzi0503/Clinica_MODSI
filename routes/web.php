@@ -5,12 +5,14 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegistoController;
 use App\Http\Controllers\DadosPessoaisController;
 use App\Http\Controllers\DisponibilidadeController;
+use App\Http\Controllers\DocumentoController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\NotificacaoController;
 use App\Http\Controllers\Paciente\ConsultaController as ConsultaDoPacienteController;
 use App\Http\Controllers\Paciente\PedidoController;
 use App\Http\Controllers\Profissional\AgendaController;
 use App\Http\Controllers\Profissional\CancelarConsultaController;
+use App\Http\Controllers\Profissional\ConsultaController as ConsultaDoProfissionalController;
 use App\Http\Controllers\Profissional\HistoricoPacienteController;
 use App\Http\Controllers\Profissional\HorarioController;
 use App\Http\Controllers\Profissional\RegistoConsultaController;
@@ -43,6 +45,13 @@ Route::middleware('guest')->group(function () {
 // POST (e não GET) porque termina a sessão; o formulário leva token CSRF.
 Route::post('/sair', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
 
+// Documentos de uma consulta (issue #76): só o paciente e o profissional dessa consulta (D37).
+Route::middleware(['auth', 'perfil:'.Perfil::PACIENTE.','.Perfil::PROFISSIONAL])->name('documentos.')->group(function () {
+    Route::post('/consultas/{consulta}/documentos', [DocumentoController::class, 'store'])->can('verDocumentos', 'consulta')->name('store');
+    Route::get('/documentos/{documento}', [DocumentoController::class, 'show'])->can('descarregar', 'documento')->name('show');
+    Route::delete('/documentos/{documento}', [DocumentoController::class, 'destroy'])->can('apagar', 'documento')->name('destroy');
+});
+
 // Notificações da própria conta (issue #74).
 Route::get('/notificacoes', [NotificacaoController::class, 'index'])
     ->middleware(['auth', 'perfil:'.implode(',', Perfil::NOMES)])
@@ -70,6 +79,7 @@ Route::middleware(['auth', 'perfil:paciente'])->prefix('paciente')->name('pacien
     Route::post('/consultas/pedidos', [PedidoController::class, 'store'])->name('pedidos.store');
     Route::get('/consultas', [ConsultaDoPacienteController::class, 'index'])->name('consultas.index');
     Route::post('/consultas/{consulta}/cancelar', [ConsultaDoPacienteController::class, 'cancelar'])->can('cancelar', 'consulta')->name('consultas.cancelar');
+    Route::get('/consultas/{consulta}', [ConsultaDoPacienteController::class, 'show'])->whereNumber('consulta')->can('verDocumentos', 'consulta')->name('consultas.show');
 });
 
 Route::middleware(['auth', 'perfil:profissional'])->prefix('profissional')->name('profissional.')->group(function () {
@@ -77,6 +87,8 @@ Route::middleware(['auth', 'perfil:profissional'])->prefix('profissional')->name
     Route::post('/consultas/{consulta}/realizada', [RegistoConsultaController::class, 'realizada'])->can('registar', 'consulta')->name('consultas.realizada');
     Route::post('/consultas/{consulta}/faltou', [RegistoConsultaController::class, 'faltou'])->can('registar', 'consulta')->name('consultas.faltou');
     Route::post('/consultas/{consulta}/cancelar', CancelarConsultaController::class)->can('cancelar', 'consulta')->name('consultas.cancelar');
+    Route::get('/consultas/{consulta}', [ConsultaDoProfissionalController::class, 'show'])->can('verObservacoes', 'consulta')->name('consultas.show');
+    Route::post('/consultas/{consulta}/observacoes', [ConsultaDoProfissionalController::class, 'observar'])->can('verObservacoes', 'consulta')->name('consultas.observar');
     Route::get('/pacientes/{paciente}/historico', HistoricoPacienteController::class)->can('verHistorico', 'paciente')->name('pacientes.historico');
     Route::get('/horario', [HorarioController::class, 'index'])->name('horario.index');
     Route::post('/horario', [HorarioController::class, 'store'])->name('horario.store');

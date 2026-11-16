@@ -53,6 +53,18 @@ class ConsultaPolicy
             || $this->eDoProfissional($user, $consulta);
     }
 
+    /** As observações são notas clínicas: só as vê e escreve o profissional da consulta (D37). */
+    public function verObservacoes(User $user, Consulta $consulta): bool
+    {
+        return $this->eDoProfissional($user, $consulta);
+    }
+
+    /** Os documentos são do paciente e do profissional da consulta; a receção não os vê (D37). */
+    public function verDocumentos(User $user, Consulta $consulta): bool
+    {
+        return $this->eDoPaciente($user, $consulta) || $this->eDoProfissional($user, $consulta);
+    }
+
     private function eDoProfissional(User $user, Consulta $consulta): bool
     {
         $profissional = $user->profissional;

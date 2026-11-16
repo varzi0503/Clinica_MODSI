@@ -58,7 +58,8 @@
                 <ul class="list-group">
                     @foreach ($doDia as $consulta)
                         <li class="list-group-item d-flex flex-wrap gap-3 align-items-start">
-                            <span class="fw-semibold" style="min-width: 3.5rem">{{ $consulta->inicio->format('H:i') }}</span>
+                            <a class="fw-semibold" style="min-width: 3.5rem" href="{{ route('profissional.consultas.show', $consulta) }}"
+                               title="{{ __('Abrir a consulta') }}">{{ $consulta->inicio->format('H:i') }}</a>
                             <div class="flex-grow-1">
                                 <div><a href="{{ route('profissional.pacientes.historico', $consulta->paciente) }}" title="{{ __('Histórico do paciente') }}">{{ $consulta->paciente->nome }}</a>
                                     <small class="text-muted">· {{ $consulta->especialidade->nome }}</small>

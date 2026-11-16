@@ -43,6 +43,14 @@ class ConsultaController extends Controller
         ]);
     }
 
+    /** Detalhe de uma consulta do próprio paciente, com os documentos (issue #76). A posse é verificada na rota. */
+    public function show(Consulta $consulta): View
+    {
+        return view('paciente.consulta', [
+            'consulta' => $consulta->load(['profissional.user', 'especialidade', 'historico', 'documentos.autor']),
+        ]);
+    }
+
     /** A posse é verificada na rota (ConsultaPolicy::cancelar); aqui, o prazo. */
     public function cancelar(Request $request, Consulta $consulta, Marcacoes $marcacoes): RedirectResponse|JsonResponse
     {
