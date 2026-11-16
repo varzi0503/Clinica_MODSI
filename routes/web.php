@@ -10,6 +10,7 @@ use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\NotificacaoController;
 use App\Http\Controllers\Paciente\ConsultaController as ConsultaDoPacienteController;
 use App\Http\Controllers\Paciente\PedidoController;
+use App\Http\Controllers\PaginaPublicaController;
 use App\Http\Controllers\Profissional\AgendaController;
 use App\Http\Controllers\Profissional\CancelarConsultaController;
 use App\Http\Controllers\Profissional\ConsultaController as ConsultaDoProfissionalController;
@@ -27,7 +28,10 @@ use App\Http\Controllers\Rececao\ProfissionalController;
 use App\Models\Perfil;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'home')->name('home');
+// UC01–UC03 — páginas públicas: informação da clínica, especialidades e profissionais.
+Route::get('/', [PaginaPublicaController::class, 'inicio'])->name('home');
+Route::get('/especialidades', [PaginaPublicaController::class, 'especialidades'])->name('especialidades.index');
+Route::get('/profissionais', [PaginaPublicaController::class, 'profissionais'])->name('profissionais.index');
 
 // UC06 — público: só devolve inícios de vagas livres, sem dados de pacientes.
 Route::get('/disponibilidade', [DisponibilidadeController::class, 'index'])->name('disponibilidade.index');
