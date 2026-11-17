@@ -47,6 +47,7 @@ A partir de 3 de novembro de 2026, as decisões técnicas são tomadas pelo Diog
 | D36 | Notificações: quem é avisado de quê, e por onde | Âmbito |
 | D37 | Observações e documentos de uma consulta: quem escreve e quem vê | Segurança |
 | D38 | Base de dados de entrega no servidor MariaDB do DEE | Stack |
+| D39 | Respostas do professor sobre alojamento, entrega e âmbito (17 nov.) | Processo |
 
 ---
 
@@ -581,3 +582,19 @@ Os formulários continuam a funcionar sem JavaScript.
 **Consequência:**
 - As migrations dos horários e das consultas só criavam as restrições CHECK com o driver `mysql`. Uma migration nova cria-as também com o driver `mariadb`, e um teste confirma que a base de dados recusa horas fora de :00/:30 e horários inválidos (este teste só corre em MySQL e MariaDB).
 - O D01 continua válido para o desenvolvimento: cada elemento usa o MySQL local, e o servidor do DEE fica reservado para a base de dados de entrega, para que um `migrate:fresh` de um não apague os dados dos outros.
+
+---
+
+## D39 — Respostas do professor sobre alojamento, entrega e âmbito (17 nov.)
+
+**Decisão** (respostas do professor na aula de 17 nov. 2026):
+- **Alojamento:** a plataforma web (aplicação e base de dados) tem de ficar alojada no servidor AVE do DEE. A demonstração pode correr localmente.
+- **Acesso à base de dados no AVE:** a porta 3306 está fechada para fora. A base de dados é carregada pelo phpMyAdmin, importando uma exportação (`.sql`); a aplicação alojada no próprio AVE liga-se a ela por dentro. A base de dados a usar fica ao critério do grupo.
+- **Entrega:** código da aplicação (zip), exportação da base de dados (`.sql`) e relatório em PDF, com 20 a 30 páginas.
+- **Emails:** não é preciso enviar emails reais. Mantém-se o envio para o log (D36).
+- **Ferramentas de IA:** o relatório leva, na introdução, uma declaração do uso de IA em formato de tabela.
+- **Modelo de dados:** o diagrama atual (dbdiagram) foi apresentado e confirmado.
+- **Âmbito:** as três extensões (notificações, lista de espera, observações e documentos) chegam. O login com Google não é esperado.
+- **Desempenho (RNF06):** o professor não especificou o método; mantém-se a medição descrita no #80.
+
+**Consequência:** a D38 continua válida para a base de dados. Falta saber como se aloja a aplicação no AVE (versão do PHP, forma de enviar ficheiros, pasta pública), o que pode obrigar a uma decisão nova.
