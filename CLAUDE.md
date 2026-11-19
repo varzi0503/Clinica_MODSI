@@ -30,6 +30,7 @@ Plataforma de gestão de consultas médicas (MODSI, ISEP). Laravel 13, PHP 8.4 (
 - `clinica.pedirJson` (`resources/js/ajax.js`). Respostas D28: 2xx `{message}`, 422 validação, 409 conflito de estado, 403 sem acesso. O formulário funciona também sem JS.
 - Rotas por perfil em `routes/web.php`: `admin.*`, `rececao.*`, `profissional.*`, `paciente.*`.
 - Textos em português com `__()`; tradução em `lang/en.json`.
+- Redesign (D42): só CSS e disposição; não mudar rotas, `name` dos campos, textos `__()` nem os atributos que o JS procura (`GanchosJavascriptTest`).
 
 ## Regras de trabalho
 
