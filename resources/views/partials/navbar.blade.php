@@ -1,6 +1,6 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom">
+<nav class="navbar navbar-expand-lg mc-nav">
     <div class="container">
-        <a class="navbar-brand fw-semibold" href="{{ route('home') }}">{{ config('app.name') }}</a>
+        <a class="navbar-brand" href="{{ route('home') }}">{{ config('clinica.nome') }}</a>
 
         <button class="navbar-toggler" type="button"
                 data-bs-toggle="collapse" data-bs-target="#nav-principal"

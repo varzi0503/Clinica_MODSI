@@ -2,22 +2,28 @@
 
 @section('title', __('Pacientes'))
 
-@section('content')
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
-        <h1 class="h3 mb-0">{{ __('Pacientes') }}</h1>
+@section('cabecalho')
+    <div class="mc-head-row">
+        <h1>{{ __('Pacientes') }}</h1>
         <a href="{{ route('rececao.pacientes.create') }}" class="btn btn-primary">{{ __('Nova ficha') }}</a>
     </div>
+@endsection
 
-    <form method="GET" class="row g-2 align-items-end mb-3">
-        <div class="col-sm-8 col-md-5">
-            <label for="q" class="form-label">{{ __('Pesquisar') }}</label>
-            <input type="search" id="q" name="q" class="form-control" value="{{ $filtros['q'] ?? '' }}"
-                   placeholder="{{ __('Nome ou nº de utente') }}" maxlength="100">
+@section('content')
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-2 align-items-end">
+                <div class="col-sm-8 col-md-5">
+                    <label for="q" class="form-label">{{ __('Pesquisar') }}</label>
+                    <input type="search" id="q" name="q" class="form-control" value="{{ $filtros['q'] ?? '' }}"
+                           placeholder="{{ __('Nome ou nº de utente') }}" maxlength="100">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-outline-secondary">{{ __('Pesquisar') }}</button>
+                </div>
+            </form>
         </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-outline-secondary">{{ __('Pesquisar') }}</button>
-        </div>
-    </form>
+    </div>
 
     @if ($pacientes->isEmpty())
         <p class="text-muted">{{ __('Nenhum paciente encontrado.') }}</p>

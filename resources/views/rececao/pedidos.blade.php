@@ -2,11 +2,13 @@
 
 @section('title', __('Pedidos de consulta'))
 
-@section('content')
-    <h1 class="h3 mb-4">{{ __('Pedidos de consulta') }}</h1>
+@section('cabecalho')
+    <h1>{{ __('Pedidos de consulta') }}</h1>
+@endsection
 
-    <div data-pagina="rececao-pedidos" data-ha-mais="{{ $pedidos->hasPages() ? 'true' : 'false' }}" data-texto-erro="{{ __('Ocorreu um erro. Recarrega a página.') }}">
-    <p class="text-muted {{ $pedidos->isEmpty() ? '' : 'd-none' }}" data-vazio>{{ __('Não há pedidos pendentes.') }}</p>
+@section('content')
+    <div class="mc-sobe" data-pagina="rececao-pedidos" data-ha-mais="{{ $pedidos->hasPages() ? 'true' : 'false' }}" data-texto-erro="{{ __('Ocorreu um erro. Recarrega a página.') }}">
+    <p class="card card-body text-muted {{ $pedidos->isEmpty() ? '' : 'd-none' }}" data-vazio>{{ __('Não há pedidos pendentes.') }}</p>
 
     @if ($pedidos->isNotEmpty())
         <div class="table-responsive">
@@ -25,19 +27,20 @@
                 <tbody>
                     @foreach ($pedidos as $pedido)
                         <tr data-pedido="{{ $pedido->id }}">
-                            <td>{{ $pedido->data_pedido->format('d/m/Y H:i') }}</td>
-                            <td>{{ $pedido->paciente->nome }}</td>
-                            <td>{{ $pedido->profissional->user->name }} <small class="text-muted">({{ $pedido->profissional->tipo->label() }})</small></td>
+                            <td class="text-nowrap">{{ $pedido->data_pedido->format('d/m/Y H:i') }}</td>
+                            <td class="text-nowrap">{{ $pedido->paciente->nome }}</td>
+                            <td class="text-nowrap">{{ $pedido->profissional->user->name }} <small class="text-muted">({{ $pedido->profissional->tipo->label() }})</small></td>
                             <td>{{ $pedido->especialidade->nome }}</td>
-                            <td>{{ $pedido->inicio->format('d/m/Y H:i') }}</td>
+                            <td class="text-nowrap fw-semibold">{{ $pedido->inicio->format('d/m/Y H:i') }}</td>
                             <td>{{ $pedido->motivo_consulta }}</td>
-                            <td class="text-end">
+                            <td class="text-end text-nowrap">
                                 <form method="POST" action="{{ route('rececao.pedidos.confirmar', $pedido) }}" class="d-inline" data-ajax="pedido">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-success">{{ __('Confirmar') }}</button>
                                 </form>
                                 <button type="button" class="btn btn-sm btn-outline-danger"
-                                        data-bs-toggle="collapse" data-bs-target="#rejeitar-{{ $pedido->id }}">
+                                        data-bs-toggle="collapse" data-bs-target="#rejeitar-{{ $pedido->id }}"
+                                        aria-expanded="false" aria-controls="rejeitar-{{ $pedido->id }}">
                                     {{ __('Rejeitar') }}
                                 </button>
                             </td>

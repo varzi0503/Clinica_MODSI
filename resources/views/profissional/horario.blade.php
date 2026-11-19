@@ -2,10 +2,12 @@
 
 @section('title', __('O meu horário'))
 
-@section('content')
-    <h1 class="h3 mb-1">{{ __('O meu horário') }}</h1>
-    <p class="text-muted mb-4">{{ __('Períodos de atendimento que se repetem todas as semanas, em vagas de 30 minutos.') }}</p>
+@section('cabecalho')
+    <h1>{{ __('O meu horário') }}</h1>
+    <p class="mt-2 mb-0">{{ __('Períodos de atendimento que se repetem todas as semanas, em vagas de 30 minutos.') }}</p>
+@endsection
 
+@section('content')
     <div class="row g-4">
         <div class="col-lg-7">
             @if ($horarios->isEmpty())

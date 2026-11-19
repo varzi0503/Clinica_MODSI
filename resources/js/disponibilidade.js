@@ -86,6 +86,8 @@ if (pagina) {
                 cartao.append(el('p', 'small text-muted mb-2', pagina.dataset.textoLegenda));
             }
 
+            // Um cartão por dia, numa grelha (.mc-slots no contentor [data-resultados]).
+            const grelha = el('div');
             const porDia = new Map();
             for (const vaga of todas) {
                 const dia = vaga.slice(0, 10);
@@ -94,9 +96,11 @@ if (pagina) {
             }
 
             for (const [dia, vagas] of porDia) {
-                const linha = el('div', 'mb-2');
-                linha.append(el('div', 'small fw-semibold text-capitalize', formatarDia(dia)));
-                const lista = el('div', 'd-flex flex-wrap gap-1');
+                const linha = el('div', 'card');
+                const titulo = el('div', 'card-header');
+                titulo.append(el('span', 'mc-cap', formatarDia(dia)));
+                linha.append(titulo);
+                const lista = el('div', 'card-body');
                 for (const iso of vagas) {
                     const hora = iso.slice(11, 16);
                     if (selecionavel) {
@@ -119,9 +123,10 @@ if (pagina) {
                     }
                 }
                 linha.append(lista);
-                cartao.append(linha);
+                grelha.append(linha);
             }
 
+            cartao.append(grelha);
             resultados.append(cartao);
         }
 
