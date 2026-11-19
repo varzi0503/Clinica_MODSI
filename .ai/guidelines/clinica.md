@@ -1,11 +1,11 @@
 # Clínica MODSI
 
-Plataforma de gestão de consultas médicas (MODSI, ISEP). Laravel 13, PHP 8.4, MySQL 8.0, Blade + Bootstrap 5, AJAX com `fetch`, testes PHPUnit sobre SQLite em memória. O código congela a **6 dez. 2026**.
+Plataforma de gestão de consultas médicas (MODSI, ISEP). Laravel 13, PHP 8.4 (no servidor AVE, 8.3: D40), MySQL 8.0, Blade + Bootstrap 5, AJAX com `fetch`, testes PHPUnit sobre SQLite em memória. O código congela a **6 dez. 2026**.
 
 ## Ler primeiro
 - `docs/estado-projeto.md` (estado e lições), `docs/decisoes.md` (D01+, **fechadas**: para mudar uma, acrescenta-se uma entrada nova que a substitui; nunca se apaga) e `CONTRIBUTING.md`.
 - `.ai/rules/index.md` antes de editar qualquer ficheiro: as regras estão agrupadas por pasta.
-- Confirmar `php -v` = 8.4. Se não for, parar e avisar o Diogo.
+- Confirmar `php -v` = 8.4 (ou 8.3). Se não for, parar e avisar o Diogo. O `composer.json` fixa a plataforma em PHP 8.3.27 para as dependências servirem no AVE (D40): não a retirar.
 
 ## Domínio
 - **Atores:** paciente, profissional (médico ou enfermeiro, em `profissionais.tipo`), rececionista, administrador. O admin só gere contas e perfis; o resto é da receção (D26).

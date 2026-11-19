@@ -130,7 +130,7 @@ Abrir o PR é um passo à parte: `git push -u origin HEAD` e depois `gh pr creat
 - Policies: `ConsultaPolicy`, `HorarioPolicy`, `PacientePolicy`, `DocumentoPolicy`, aplicadas nas rotas com `->can()`.
 - `TransicaoEstadoInvalida` respondida em `bootstrap/app.php` (409 em JSON, `back()` com erro fora de JSON).
 - Factories para todos os modelos; a `ConsultaFactory` cria o histórico completo de cada estado.
-- CI em `.github/workflows/testes.yml` (PHP 8.4, SQLite), em cada PR para o `main`.
+- CI em `.github/workflows/testes.yml` (PHP 8.3 e 8.4, SQLite), em cada PR para o `main`.
 
 **Funcionalidades por perfil:** ver a tabela do `README.md`.
 
