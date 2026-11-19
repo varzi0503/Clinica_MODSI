@@ -33,13 +33,16 @@
 
     $segura = Read-Host "Palavra-passe do MariaDB do AVE (a do phpMyAdmin)" -AsSecureString
     $pw = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($segura))
+    $segura2 = Read-Host "Repete a palavra-passe" -AsSecureString
+    $pw2 = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($segura2))
+    if ($pw -cne $pw2) { throw "As palavras-passe não coincidem. Parei." }
     if ($pw.Contains("'")) { throw "A palavra-passe tem uma plica ('), que o .env não aceita entre plicas. Parei." }
     $pwEnv = $pw.Replace('$', '$$')
     $conteudo = (Get-Content .env.example -Raw) `
         -replace '(?m)^APP_ENV=.*', 'APP_ENV=production' `
         -replace '(?m)^APP_KEY=.*', "APP_KEY=$chave" `
         -replace '(?m)^APP_DEBUG=.*', 'APP_DEBUG=false' `
-        -replace '(?m)^APP_URL=.*', 'APP_URL=https://ave.dee.isep.ipp.pt/~1212100' `
+        -replace '(?m)^APP_URL=.*', 'APP_URL=http://ave.dee.isep.ipp.pt/~1212100' `
         -replace '(?m)^LOG_LEVEL=.*', 'LOG_LEVEL=error' `
         -replace '(?m)^DB_HOST=.*', 'DB_HOST=localhost' `
         -replace '(?m)^DB_DATABASE=.*', 'DB_DATABASE=1212100' `
