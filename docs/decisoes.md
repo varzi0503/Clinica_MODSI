@@ -50,6 +50,7 @@ A partir de 3 de novembro de 2026, as decisões técnicas são tomadas pelo Diog
 | D39 | Respostas do professor sobre alojamento, entrega e âmbito (17 nov.) | Processo |
 | D40 | Aplicação alojada no AVE com PHP 8.3 | Stack |
 | D41 | Endereço da plataforma em HTTP e etiquetas SELinux no AVE | Stack |
+| D42 | Âmbito e prazo do redesign da interface | Processo |
 
 ---
 
@@ -646,3 +647,22 @@ Os formulários continuam a funcionar sem JavaScript.
 **Alternativa rejeitada:** pedir ao DEE que corrigisse o HTTPS. A avaria é de todo o servidor, não afeta a avaliação e podia não ser resolvida antes do congelamento (6 dez.).
 
 **Consequência:** o `empacotar.ps1` grava `APP_URL` em `http://` e pede a palavra-passe duas vezes (na primeira instalação, uma gralha na palavra-passe deu "Access denied"). O README (secção 12) inclui o `chcon`. O relatório deve indicar o endereço com `http://`.
+
+---
+
+## D42 — Âmbito e prazo do redesign da interface
+
+**Decisão:**
+- O redesign mexe só no aspeto: CSS e disposição das vistas Blade (classes do Bootstrap, cores, tipografia, cartões, ordem dos blocos).
+- Não muda controladores, rotas, nomes de campos (`name`), `@csrf`/`@method`, nem os textos com `__()`.
+- Mantêm-se os atributos que o JavaScript procura (`data-*`, `id="dados-estatisticas"`, `name="motivo"`, `name="paciente_id"`, a `meta` do token CSRF e o `<main>`). O teste `GanchosJavascriptTest` falha se algum desaparecer.
+- O redesign entra no `main` até 29 nov. As capturas de ecrã do relatório tiram-se depois disso.
+
+**Porquê:**
+- Se um destes atributos desaparecer, o AJAX deixa de funcionar sem erro visível. Os formulários continuam a funcionar sem JS, por isso a suite não daria pela falta sem um teste próprio.
+- Mudar textos obrigava a mudar o `lang/en.json` (RNF multilingue); mudar nomes de campos obrigava a mudar validações e testes.
+- A última semana antes do congelamento (6 dez.) fica para a exportação final da base de dados, a reinstalação no AVE (D40, D41), as capturas do relatório e o ensaio da demonstração.
+
+**Alternativa rejeitada:** redesign livre, até ao congelamento. Cada atributo ou texto mudado arrastava alterações no JS e nas traduções, e uma regressão descoberta na última semana caía em cima da entrega.
+
+**Consequência:** teste novo `tests/Feature/GanchosJavascriptTest.php`. Antes de integrar o redesign, corre-se também o percurso no browser (AJAX das vagas, confirmar pedido, gráficos, upload, idioma).
