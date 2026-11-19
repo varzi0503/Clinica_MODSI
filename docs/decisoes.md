@@ -49,6 +49,7 @@ A partir de 3 de novembro de 2026, as decisões técnicas são tomadas pelo Diog
 | D38 | Base de dados de entrega no servidor MariaDB do DEE | Stack |
 | D39 | Respostas do professor sobre alojamento, entrega e âmbito (17 nov.) | Processo |
 | D40 | Aplicação alojada no AVE com PHP 8.3 | Stack |
+| D41 | Endereço da plataforma em HTTP e etiquetas SELinux no AVE | Stack |
 
 ---
 
@@ -604,6 +605,8 @@ Os formulários continuam a funcionar sem JavaScript.
 
 ## D40 — Aplicação alojada no AVE com PHP 8.3
 
+> **Endereço e instalação completados pela D41** (19 nov.): HTTP em vez de HTTPS e etiquetas SELinux. O resto mantém-se.
+
 **Decisão:**
 - A plataforma fica em `https://ave.dee.isep.ipp.pt/~1212100/`. A aplicação vive em `~/clinica`, fora da área pública; só o conteúdo de `public/` vai para `~/public_html`, com um `index.php` que aponta para `~/clinica` e um `.htaccess` próprio (pasta `deploy/ave/`).
 - O `composer.json` fixa a plataforma em PHP 8.3.27, a versão do AVE. Com isso, os componentes Symfony passam de 8.1 para 7.4, o PHPUnit de 13 para 12 e o Pest de 5 para 4. O Laravel não muda.
@@ -625,3 +628,21 @@ Os formulários continuam a funcionar sem JavaScript.
 - Se o PHP do AVE mantiver o limite de upload de 2 MB e correr como módulo do Apache, os documentos maiores que 2 MB são recusados com a mensagem de ficheiro demasiado grande (o limite da aplicação continua a ser 5 MB, D37).
 - Reinstalar o código apaga os documentos carregados no servidor; para atualizar só os dados, basta reimportar a exportação.
 - Passos de instalação na secção 12 do README.
+
+---
+
+## D41 — Endereço da plataforma em HTTP e etiquetas SELinux no AVE
+
+**Decisão:**
+- A plataforma é servida em `http://ave.dee.isep.ipp.pt/~1212100/`, e não em `https://` como dizia a D40.
+- A instalação muda as etiquetas SELinux: `httpd_user_content_t` para `~/public_html` e `~/clinica`, e `httpd_user_rw_content_t` para `storage/` e `bootstrap/cache`.
+- `DB_HOST=localhost`: a ligação por socket funciona com o utilizador `1212100`.
+
+**Porquê:**
+- Na instalação de 19 nov., o HTTPS do AVE respondia 503 a todos os pedidos, incluindo a raiz do servidor e as páginas de outros alunos. Por HTTP, as mesmas páginas respondem 200.
+- O AVE é um Fedora com o SELinux ativo. Os ficheiros extraídos na pasta pessoal ficam com a etiqueta `user_home_t`, que o servidor web não pode usar.
+- O PHP corre em PHP-FPM, como utilizador `apache`; por isso o `.user.ini` aplica-se e o limite de upload fica em 8 MB, acima dos 5 MB dos documentos (D37).
+
+**Alternativa rejeitada:** pedir ao DEE que corrigisse o HTTPS. A avaria é de todo o servidor, não afeta a avaliação e podia não ser resolvida antes do congelamento (6 dez.).
+
+**Consequência:** o `empacotar.ps1` grava `APP_URL` em `http://` e pede a palavra-passe duas vezes (na primeira instalação, uma gralha na palavra-passe deu "Access denied"). O README (secção 12) inclui o `chcon`. O relatório deve indicar o endereço com `http://`.

@@ -546,7 +546,7 @@ Os documentos carregados ficam em `storage/app/private/`. O `migrate:fresh` apag
 
 ## 12. Alojamento no AVE
 
-A plataforma fica em <https://ave.dee.isep.ipp.pt/~1212100/> (D39, D40). O servidor tem PHP 8.3 e MariaDB 10.11; a raiz web é `~/public_html`. A aplicação fica em `~/clinica`, fora da área pública, e só o conteúdo de `public/` vai para `~/public_html`, com os ficheiros de `deploy/ave/public_html/`.
+A plataforma fica em <http://ave.dee.isep.ipp.pt/~1212100/> (D39, D40, D41). O HTTPS do AVE responde 503 em todo o servidor, por isso o endereço é `http://`. O servidor tem PHP 8.3 e MariaDB 10.11; a raiz web é `~/public_html`. A aplicação fica em `~/clinica`, fora da área pública, e só o conteúdo de `public/` vai para `~/public_html`, com os ficheiros de `deploy/ave/public_html/`.
 
 A base de dados `1212100` é carregada pelo phpMyAdmin, a partir de uma exportação (`.sql`) da base de dados local sem as cláusulas `DEFINER`.
 
@@ -569,10 +569,18 @@ A base de dados `1212100` é carregada pelo phpMyAdmin, a partir de uma exporta�
    ```bash
    rm -rf ~/clinica && tar -xzf ~/clinica-ave.tar.gz -C ~ && rm ~/clinica-ave.tar.gz
    chmod 711 ~ && chmod -R a+rwX ~/clinica/storage ~/clinica/bootstrap/cache
+   chcon -R -t httpd_user_content_t ~/public_html ~/clinica
+   chcon -R -t httpd_user_rw_content_t ~/clinica/storage ~/clinica/bootstrap/cache
    cd ~/clinica && php -v && php artisan migrate:status && php artisan optimize
    ```
 
-5. Abrir `https://ave.dee.isep.ipp.pt/~1212100/verifica.php` (versão do PHP, extensões, limites de upload, pastas graváveis), e depois apagá-lo: `rm ~/public_html/verifica.php`.
-6. Apagar `$HOME\clinica-ave.tar.gz` e a pasta `$HOME\clinica-ave` no Windows: contêm o `.env` com a palavra-passe.
+5. Abrir `http://ave.dee.isep.ipp.pt/~1212100/verifica.php` (versão do PHP, extensões, limites de upload, pastas graváveis), e depois apagá-lo: `rm ~/public_html/verifica.php`.
+6. Apagar o pacote no Windows, porque contém o `.env` com a palavra-passe:
+
+   ```powershell
+   Remove-Item "$HOME\clinica-ave.tar.gz", "$HOME\clinica-ave" -Recurse -Force
+   ```
+
+O `chcon` muda as etiquetas SELinux do Fedora: sem elas, o Apache não lê os ficheiros da pasta pessoal nem grava em `storage/`. Para testar no próprio servidor, usar `curl http://ave.dee.isep.ipp.pt/~1212100/` e não `localhost`, que aponta para outro site.
 
 Para atualizar o código, repetir os passos 2 a 5. O `rm -rf ~/clinica` apaga também os documentos carregados no servidor (`storage/app/private`). Para atualizar só os dados, reimportar o `.sql` no phpMyAdmin, apagando antes as tabelas e as vistas.
