@@ -33,6 +33,9 @@
 
     $segura = Read-Host "Palavra-passe do MariaDB do AVE (a do phpMyAdmin)" -AsSecureString
     $pw = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($segura))
+    $segura2 = Read-Host "Repete a palavra-passe" -AsSecureString
+    $pw2 = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($segura2))
+    if ($pw -cne $pw2) { throw "As palavras-passe não coincidem. Parei." }
     if ($pw.Contains("'")) { throw "A palavra-passe tem uma plica ('), que o .env não aceita entre plicas. Parei." }
     $pwEnv = $pw.Replace('$', '$$')
     $conteudo = (Get-Content .env.example -Raw) `
