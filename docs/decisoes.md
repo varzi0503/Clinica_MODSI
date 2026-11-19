@@ -48,6 +48,7 @@ A partir de 3 de novembro de 2026, as decisões técnicas são tomadas pelo Diog
 | D37 | Observações e documentos de uma consulta: quem escreve e quem vê | Segurança |
 | D38 | Base de dados de entrega no servidor MariaDB do DEE | Stack |
 | D39 | Respostas do professor sobre alojamento, entrega e âmbito (17 nov.) | Processo |
+| D40 | Aplicação alojada no AVE com PHP 8.3 | Stack |
 
 ---
 
@@ -598,3 +599,29 @@ Os formulários continuam a funcionar sem JavaScript.
 - **Desempenho (RNF06):** o professor não especificou o método; mantém-se a medição descrita no #80.
 
 **Consequência:** a D38 continua válida para a base de dados. Falta saber como se aloja a aplicação no AVE (versão do PHP, forma de enviar ficheiros, pasta pública), o que pode obrigar a uma decisão nova.
+
+---
+
+## D40 — Aplicação alojada no AVE com PHP 8.3
+
+**Decisão:**
+- A plataforma fica em `https://ave.dee.isep.ipp.pt/~1212100/`. A aplicação vive em `~/clinica`, fora da área pública; só o conteúdo de `public/` vai para `~/public_html`, com um `index.php` que aponta para `~/clinica` e um `.htaccess` próprio (pasta `deploy/ave/`).
+- O `composer.json` fixa a plataforma em PHP 8.3.27, a versão do AVE. Com isso, os componentes Symfony passam de 8.1 para 7.4, o PHPUnit de 13 para 12 e o Pest de 5 para 4. O Laravel não muda.
+- O desenvolvimento continua em PHP 8.4 (Herd); o CI corre a suite em 8.3 e em 8.4.
+- O pacote é gerado no Windows (`deploy/ave/empacotar.ps1`), com as dependências de produção e os assets já compilados, e enviado por `scp`. No servidor não corre `composer`, `npm` nem migrations: a base de dados vem da exportação (D39).
+
+**Porquê:**
+- O AVE tem PHP 8.3.27 e as dependências instaladas exigiam 8.4.1: a aplicação não arrancava lá.
+- Fixar a plataforma garante que um `composer update` futuro nunca volta a escolher pacotes só para 8.4.
+- Pôr a aplicação fora de `~/public_html` impede que o `.env`, o código ou os documentos fiquem acessíveis pelo browser.
+- O `.htaccess` do Laravel tem uma linha `Options` que o Apache costuma recusar em `~/public_html` (erro 500).
+- Os cookies de sessão ficam limitados a `/~1212100` (`SESSION_PATH`), porque o domínio é partilhado com os sites de outros alunos.
+
+**Alternativa rejeitada:** pedir ao DEE que instalasse PHP 8.4. Sem garantia de resposta a tempo do congelamento (6 dez.), e o 8.3 não obriga a mudar código.
+
+**O que foi verificado:** a suite completa passa em PHP 8.3 com SQLite e com MariaDB 10.11 (incluindo os testes de concorrência), e em PHP 8.4. Num servidor simulado (Apache com páginas pessoais na configuração por omissão do Debian, PHP 8.3, MariaDB 10.11 com a exportação importada), o percurso completo no browser funciona: login, AJAX, documentos, gráficos, idioma e página 404 sem rastreio.
+
+**Consequência:**
+- Se o PHP do AVE mantiver o limite de upload de 2 MB e correr como módulo do Apache, os documentos maiores que 2 MB são recusados com a mensagem de ficheiro demasiado grande (o limite da aplicação continua a ser 5 MB, D37).
+- Reinstalar o código apaga os documentos carregados no servidor; para atualizar só os dados, basta reimportar a exportação.
+- Passos de instalação na secção 12 do README.

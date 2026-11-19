@@ -19,6 +19,7 @@ O `README.md` tem a versão curta da instalação. Este guia é a versão detalh
 9. [Roteiro de teste das funcionalidades](#9-roteiro-de-teste-das-funcionalidades)
 10. [Problemas frequentes](#10-problemas-frequentes)
 11. [Recomeçar do zero](#11-recomeçar-do-zero)
+12. [Alojamento no AVE](#12-alojamento-no-ave)
 
 ---
 
@@ -27,7 +28,7 @@ O `README.md` tem a versão curta da instalação. Este guia é a versão detalh
 | Ferramenta | Versão | Para quê |
 |---|---|---|
 | Laravel Herd | atual | Serve a aplicação em `http://clinica.test` e traz `php`, `composer`, `node` e `npm` |
-| PHP | **8.4** | Vem com o Herd. O `composer.json` aceita 8.3, mas as dependências instaladas exigem 8.4 (D01) |
+| PHP | **8.4** | Vem com o Herd. As dependências estão fixadas para PHP 8.3.27, a versão do servidor AVE, e funcionam igualmente em 8.4 (D40) |
 | Node | 22 ou mais recente | Vem com o Herd. Compila o CSS e o JavaScript (Vite) |
 | MySQL Community Server | 8.0 | Base de dados. **Não vem com o Herd gratuito**: instala-se à parte |
 | Git | qualquer | Obter o código |
@@ -542,3 +543,36 @@ php artisan test
 ```
 
 Os documentos carregados ficam em `storage/app/private/`. O `migrate:fresh` apaga os registos da base de dados, mas não os ficheiros: podem apagar-se à mão.
+
+## 12. Alojamento no AVE
+
+A plataforma fica em <https://ave.dee.isep.ipp.pt/~1212100/> (D39, D40). O servidor tem PHP 8.3 e MariaDB 10.11; a raiz web é `~/public_html`. A aplicação fica em `~/clinica`, fora da área pública, e só o conteúdo de `public/` vai para `~/public_html`, com os ficheiros de `deploy/ave/public_html/`.
+
+A base de dados `1212100` é carregada pelo phpMyAdmin, a partir de uma exportação (`.sql`) da base de dados local sem as cláusulas `DEFINER`.
+
+1. Repor a palavra-passe do AVE no Portal dos componentes (é diferente da do MariaDB).
+2. Gerar o pacote, na pasta do projeto, no `main` atualizado (pede a palavra-passe do MariaDB):
+
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File deploy\ave\empacotar.ps1
+   ```
+
+3. Enviar e entrar no servidor (a opção evita o erro *Too many authentication failures*):
+
+   ```powershell
+   scp -o PubkeyAuthentication=no "$HOME\clinica-ave.tar.gz" 1212100@ave.dee.isep.ipp.pt:
+   ssh -o PubkeyAuthentication=no 1212100@ave.dee.isep.ipp.pt
+   ```
+
+4. No servidor (substitui o que estiver em `~/clinica` e `~/public_html`):
+
+   ```bash
+   rm -rf ~/clinica && tar -xzf ~/clinica-ave.tar.gz -C ~ && rm ~/clinica-ave.tar.gz
+   chmod 711 ~ && chmod -R a+rwX ~/clinica/storage ~/clinica/bootstrap/cache
+   cd ~/clinica && php -v && php artisan migrate:status && php artisan optimize
+   ```
+
+5. Abrir `https://ave.dee.isep.ipp.pt/~1212100/verifica.php` (versão do PHP, extensões, limites de upload, pastas graváveis), e depois apagá-lo: `rm ~/public_html/verifica.php`.
+6. Apagar `$HOME\clinica-ave.tar.gz` e a pasta `$HOME\clinica-ave` no Windows: contêm o `.env` com a palavra-passe.
+
+Para atualizar o código, repetir os passos 2 a 5. O `rm -rf ~/clinica` apaga também os documentos carregados no servidor (`storage/app/private`). Para atualizar só os dados, reimportar o `.sql` no phpMyAdmin, apagando antes as tabelas e as vistas.
