@@ -42,7 +42,7 @@
         -replace '(?m)^APP_ENV=.*', 'APP_ENV=production' `
         -replace '(?m)^APP_KEY=.*', "APP_KEY=$chave" `
         -replace '(?m)^APP_DEBUG=.*', 'APP_DEBUG=false' `
-        -replace '(?m)^APP_URL=.*', 'APP_URL=https://ave.dee.isep.ipp.pt/~1212100' `
+        -replace '(?m)^APP_URL=.*', 'APP_URL=http://ave.dee.isep.ipp.pt/~1212100' `
         -replace '(?m)^LOG_LEVEL=.*', 'LOG_LEVEL=error' `
         -replace '(?m)^DB_HOST=.*', 'DB_HOST=localhost' `
         -replace '(?m)^DB_DATABASE=.*', 'DB_DATABASE=1212100' `
