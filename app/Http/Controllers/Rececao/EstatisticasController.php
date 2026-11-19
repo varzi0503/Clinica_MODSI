@@ -16,18 +16,18 @@ use Illuminate\View\View;
 class EstatisticasController extends Controller
 {
     /**
-     * Uma cor fixa por estado, igual em todos os gráficos. A paleta foi verificada para
-     * daltonismo; três das cores têm pouco contraste com o fundo, por isso cada gráfico
-     * tem sempre a tabela com os números ao lado.
+     * Uma cor fixa por estado, igual em todos os gráficos e na bolinha das etiquetas
+     * (tema da D43, `--mc-st-*` em resources/css/app.css). Todas passam 3:1 contra o
+     * branco; mesmo assim, cada gráfico tem a tabela com os números ao lado.
      */
     private const CORES = [
-        'em_espera' => '#2a78d6',
-        'pedida' => '#eb6834',
-        'confirmada' => '#1baf7a',
-        'rejeitada' => '#eda100',
-        'cancelada' => '#e87ba4',
-        'realizada' => '#008300',
-        'faltou' => '#6250d6',
+        'em_espera' => '#6941c6',
+        'pedida' => '#c4590a',
+        'confirmada' => '#1d63d8',
+        'rejeitada' => '#c8281c',
+        'cancelada' => '#4b5563',
+        'realizada' => '#13844f',
+        'faltou' => '#b8186d',
     ];
 
     public function index(Request $request, Estatisticas $estatisticas): View

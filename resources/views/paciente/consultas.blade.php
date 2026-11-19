@@ -2,11 +2,14 @@
 
 @section('title', __('As minhas consultas'))
 
-@section('content')
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-        <h1 class="h3 mb-0">{{ __('As minhas consultas') }}</h1>
+@section('cabecalho')
+    <div class="mc-head-row">
+        <h1>{{ __('As minhas consultas') }}</h1>
         <a href="{{ route('paciente.pedidos.create') }}" class="btn btn-primary">{{ __('Pedir consulta') }}</a>
     </div>
+@endsection
+
+@section('content')
     <ul class="nav nav-tabs mb-3">
         <li class="nav-item">
             <a class="nav-link {{ $passadas ? '' : 'active' }}" @if (! $passadas) aria-current="page" @endif

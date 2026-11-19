@@ -2,9 +2,11 @@
 
 @section('title', __('Notificações'))
 
-@section('content')
-    <h1 class="h3 mb-4">{{ __('Notificações') }}</h1>
+@section('cabecalho')
+    <h1>{{ __('Notificações') }}</h1>
+@endsection
 
+@section('content')
     @if ($notificacoes->isEmpty())
         <p class="text-muted">{{ __('Não tem notificações.') }}</p>
     @else

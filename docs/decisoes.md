@@ -51,6 +51,7 @@ A partir de 3 de novembro de 2026, as decisões técnicas são tomadas pelo Diog
 | D40 | Aplicação alojada no AVE com PHP 8.3 | Stack |
 | D41 | Endereço da plataforma em HTTP e etiquetas SELinux no AVE | Stack |
 | D42 | Âmbito e prazo do redesign da interface | Processo |
+| D43 | Tema visual "Banda de cor" | Interface |
 
 ---
 
@@ -666,3 +667,28 @@ Os formulários continuam a funcionar sem JavaScript.
 **Alternativa rejeitada:** redesign livre, até ao congelamento. Cada atributo ou texto mudado arrastava alterações no JS e nas traduções, e uma regressão descoberta na última semana caía em cima da entrega.
 
 **Consequência:** teste novo `tests/Feature/GanchosJavascriptTest.php`. Antes de integrar o redesign, corre-se também o percurso no browser (AJAX das vagas, confirmar pedido, gráficos, upload, idioma).
+
+---
+
+## D43 — Tema visual "Banda de cor"
+
+**Decisão:**
+- A interface usa o tema "Banda de cor", desenhado no Claude Design a partir de capturas da aplicação: navegação e título de cada página sobre uma banda petróleo escura, conteúdo em cartões brancos que sobem sobre ela, menta só sobre a banda, tabelas brancas e sóbrias.
+- O tema é CSS por cima do Bootstrap 5.3 (`resources/css/app.css`): variáveis `--bs-*` e `--mc-*` e poucas classes próprias (`.mc-nav`, `.mc-page-head`, `.mc-hero`, `.mc-slots`, `.mc-skip`, `.mc-day`, `.mc-today`, `.mc-stat`, `.mc-icon`, `.mc-cap`). O Bootstrap passa a ser importado no CSS, antes do tema.
+- Tipos de letra Inter (texto) e Plus Jakarta Sans (títulos), pelo Google Fonts; sem internet, ficam os do sistema.
+- A marca na navegação é "Clínica MODSI" (`config('clinica.nome')`), em vez do `APP_NAME`.
+- As 7 cores de estado são as mesmas nas etiquetas e nos gráficos (antes não coincidiam); o nome do estado está sempre escrito.
+- Texto novo: "Ir para a vaga escolhida" (link de salto nas páginas de marcação, preso ao topo no telemóvel).
+
+**Porquê:**
+- Dá identidade à aplicação sem trocar de framework nem tocar no comportamento (D42).
+- Contraste AA em texto e botões, foco visível, vagas de 44×44 px no telemóvel, e o estado nunca só por cor (WCAG 1.4.1, 1.4.3, 1.4.11, 2.5.8).
+- Com cores iguais nas etiquetas e nos gráficos, a leitura das estatísticas é imediata.
+
+**Alternativa rejeitada:** instalar os tipos de letra com `@fontsource` (dependência nova, só para a demo funcionar sem internet); e manter o aspeto padrão do Bootstrap.
+
+**Consequência:**
+- Vistas: o título de cada página passa para `@section('cabecalho')`; o layout desenha a banda. Filtros, formulários e dados passam para cartões. O bloco a seguir à banda só sobe sobre ela se for um cartão, uma tabela ou tiver `.mc-sobe`, para nunca haver texto escuro sobre a banda.
+- `disponibilidade.js` gera um cartão por dia (mesmos atributos `data-*`); `EstatisticasController` usa as novas cores.
+- Rotas, campos, textos (exceto o novo) e ganchos do JS não mudam: os 305 testes, incluindo `GanchosJavascriptTest`, passam sem alterações.
+- As capturas do relatório tiram-se depois deste PR (D42).

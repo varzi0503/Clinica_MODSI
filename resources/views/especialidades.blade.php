@@ -2,9 +2,11 @@
 
 @section('title', __('Especialidades'))
 
-@section('content')
-    <h1 class="h3 mb-4">{{ __('Especialidades') }}</h1>
+@section('cabecalho')
+    <h1>{{ __('Especialidades') }}</h1>
+@endsection
 
+@section('content')
     @if ($especialidades->isEmpty())
         <p class="text-muted">{{ __('As especialidades serão anunciadas em breve.') }}</p>
     @else

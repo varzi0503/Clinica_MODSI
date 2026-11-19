@@ -2,30 +2,36 @@
 
 @section('title', __('Consultas'))
 
-@section('content')
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
-        <h1 class="h3 mb-0">{{ __('Consultas') }}</h1>
+@section('cabecalho')
+    <div class="mc-head-row">
+        <h1>{{ __('Consultas') }}</h1>
         <a href="{{ route('rececao.consultas.create') }}" class="btn btn-primary">{{ __('Marcar consulta') }}</a>
     </div>
+@endsection
 
-    <form method="GET" class="row g-2 align-items-end mb-3">
-        <div class="col-sm-6 col-md-4">
-            <label for="profissional_id" class="form-label">{{ __('Profissional') }}</label>
-            <select id="profissional_id" name="profissional_id" class="form-select">
-                <option value="">{{ __('Todos') }}</option>
-                @foreach ($profissionais as $profissional)
-                    <option value="{{ $profissional->id }}" @selected(($filtros['profissional_id'] ?? null) == $profissional->id)>{{ $profissional->user->name }}</option>
-                @endforeach
-            </select>
+@section('content')
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-2 align-items-end">
+                <div class="col-sm-6 col-md-4">
+                    <label for="profissional_id" class="form-label">{{ __('Profissional') }}</label>
+                    <select id="profissional_id" name="profissional_id" class="form-select">
+                        <option value="">{{ __('Todos') }}</option>
+                        @foreach ($profissionais as $profissional)
+                            <option value="{{ $profissional->id }}" @selected(($filtros['profissional_id'] ?? null) == $profissional->id)>{{ $profissional->user->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-sm-4 col-md-3">
+                    <label for="de" class="form-label">{{ __('A partir de') }}</label>
+                    <input type="date" id="de" name="de" class="form-control" value="{{ $filtros['de'] }}">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-outline-secondary">{{ __('Filtrar') }}</button>
+                </div>
+            </form>
         </div>
-        <div class="col-sm-4 col-md-3">
-            <label for="de" class="form-label">{{ __('A partir de') }}</label>
-            <input type="date" id="de" name="de" class="form-control" value="{{ $filtros['de'] }}">
-        </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-outline-secondary">{{ __('Filtrar') }}</button>
-        </div>
-    </form>
+    </div>
 
     @if ($consultas->isEmpty())
         <p class="text-muted">{{ __('Não há consultas a partir desta data.') }}</p>

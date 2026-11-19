@@ -2,18 +2,20 @@
 
 @section('title', __('Histórico do paciente'))
 
-@section('content')
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-        <h1 class="h3 mb-0">{{ $paciente->nome }}</h1>
+@section('cabecalho')
+    <div class="mc-head-row">
+        <h1>{{ $paciente->nome }}</h1>
         <a href="{{ route('profissional.agenda.index') }}" class="btn btn-outline-secondary">{{ __('Voltar à agenda') }}</a>
     </div>
-    <p class="text-muted mb-4">
+    <p class="mt-2 mb-0">
         {{ __('Nº de utente') }} {{ $paciente->num_utente }}
         @if ($paciente->telefone) · {{ $paciente->telefone }} @endif
         <br>
         <span class="small">{{ __('Só aparecem as consultas deste paciente consigo.') }}</span>
     </p>
+@endsection
 
+@section('content')
     <div class="table-responsive">
         <table class="table align-middle">
             <thead>
