@@ -2,32 +2,38 @@
 
 @section('title', __('Profissionais de saúde'))
 
-@section('content')
-    <h1 class="h3 mb-4">{{ __('Profissionais de saúde') }}</h1>
+@section('cabecalho')
+    <h1>{{ __('Profissionais de saúde') }}</h1>
+@endsection
 
-    <form method="GET" class="row g-2 align-items-end mb-4">
-        <div class="col-sm-6 col-md-4">
-            <label for="especialidade_id" class="form-label">{{ __('Especialidade') }}</label>
-            <select id="especialidade_id" name="especialidade_id" class="form-select">
-                <option value="">{{ __('Todas') }}</option>
-                @foreach ($especialidades as $especialidade)
-                    <option value="{{ $especialidade->id }}" @selected(($filtros['especialidade_id'] ?? null) == $especialidade->id)>{{ $especialidade->nome }}</option>
-                @endforeach
-            </select>
+@section('content')
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-2 align-items-end">
+                <div class="col-sm-6 col-md-4">
+                    <label for="especialidade_id" class="form-label">{{ __('Especialidade') }}</label>
+                    <select id="especialidade_id" name="especialidade_id" class="form-select">
+                        <option value="">{{ __('Todas') }}</option>
+                        @foreach ($especialidades as $especialidade)
+                            <option value="{{ $especialidade->id }}" @selected(($filtros['especialidade_id'] ?? null) == $especialidade->id)>{{ $especialidade->nome }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-sm-4 col-md-3">
+                    <label for="tipo" class="form-label">{{ __('Tipo') }}</label>
+                    <select id="tipo" name="tipo" class="form-select">
+                        <option value="">{{ __('Todos') }}</option>
+                        @foreach ($tipos as $tipo)
+                            <option value="{{ $tipo->value }}" @selected(($filtros['tipo'] ?? '') === $tipo->value)>{{ $tipo->label() }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-outline-secondary">{{ __('Filtrar') }}</button>
+                </div>
+            </form>
         </div>
-        <div class="col-sm-4 col-md-3">
-            <label for="tipo" class="form-label">{{ __('Tipo') }}</label>
-            <select id="tipo" name="tipo" class="form-select">
-                <option value="">{{ __('Todos') }}</option>
-                @foreach ($tipos as $tipo)
-                    <option value="{{ $tipo->value }}" @selected(($filtros['tipo'] ?? '') === $tipo->value)>{{ $tipo->label() }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-outline-secondary">{{ __('Filtrar') }}</button>
-        </div>
-    </form>
+    </div>
 
     @if ($profissionais->isEmpty())
         <p class="text-muted">{{ __('Nenhum profissional encontrado.') }}</p>

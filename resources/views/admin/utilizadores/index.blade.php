@@ -2,31 +2,37 @@
 
 @section('title', __('Utilizadores'))
 
-@section('content')
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
-        <h1 class="h3 mb-0">{{ __('Utilizadores') }}</h1>
+@section('cabecalho')
+    <div class="mc-head-row">
+        <h1>{{ __('Utilizadores') }}</h1>
         <a href="{{ route('admin.utilizadores.create') }}" class="btn btn-primary">{{ __('Novo utilizador') }}</a>
     </div>
+@endsection
 
-    <form method="GET" class="row g-2 align-items-end mb-3">
-        <div class="col-sm-6 col-md-4">
-            <label for="q" class="form-label">{{ __('Pesquisar') }}</label>
-            <input type="search" id="q" name="q" class="form-control" value="{{ $filtros['q'] ?? '' }}"
-                   placeholder="{{ __('Nome ou email') }}" maxlength="100">
+@section('content')
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-2 align-items-end">
+                <div class="col-sm-6 col-md-4">
+                    <label for="q" class="form-label">{{ __('Pesquisar') }}</label>
+                    <input type="search" id="q" name="q" class="form-control" value="{{ $filtros['q'] ?? '' }}"
+                           placeholder="{{ __('Nome ou email') }}" maxlength="100">
+                </div>
+                <div class="col-sm-4 col-md-3">
+                    <label for="perfil" class="form-label">{{ __('Perfil') }}</label>
+                    <select id="perfil" name="perfil" class="form-select">
+                        <option value="">{{ __('Todos') }}</option>
+                        @foreach ($perfis as $perfil)
+                            <option value="{{ $perfil->nome }}" @selected(($filtros['perfil'] ?? '') === $perfil->nome)>{{ __(ucfirst($perfil->nome)) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-outline-secondary">{{ __('Filtrar') }}</button>
+                </div>
+            </form>
         </div>
-        <div class="col-sm-4 col-md-3">
-            <label for="perfil" class="form-label">{{ __('Perfil') }}</label>
-            <select id="perfil" name="perfil" class="form-select">
-                <option value="">{{ __('Todos') }}</option>
-                @foreach ($perfis as $perfil)
-                    <option value="{{ $perfil->nome }}" @selected(($filtros['perfil'] ?? '') === $perfil->nome)>{{ __(ucfirst($perfil->nome)) }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-outline-secondary">{{ __('Filtrar') }}</button>
-        </div>
-    </form>
+    </div>
 
     @if ($utilizadores->isEmpty())
         <p class="text-muted">{{ __('Nenhum utilizador encontrado.') }}</p>

@@ -2,12 +2,14 @@
 
 @section('title', __('Especialidades'))
 
-@section('content')
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
-        <h1 class="h3 mb-0">{{ __('Especialidades') }}</h1>
+@section('cabecalho')
+    <div class="mc-head-row">
+        <h1>{{ __('Especialidades') }}</h1>
         <a href="{{ route('rececao.especialidades.create') }}" class="btn btn-primary">{{ __('Nova especialidade') }}</a>
     </div>
+@endsection
 
+@section('content')
     @if ($especialidades->isEmpty())
         <p class="text-muted">{{ __('Ainda não há especialidades.') }}</p>
     @else
